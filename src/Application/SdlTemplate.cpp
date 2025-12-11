@@ -14,14 +14,14 @@ namespace App
 		
 		m_window = std::make_unique<Core::SDLBackend::Window>("sdltemplate", 1280, 720);
 		m_renderer = std::make_unique<Core::SDLBackend::Renderer>(*m_window);
-		m_tex = Core::SDLBackend::Texture(m_renderer->getRendHand(), "./assets/no_texture.png", glm::vec2(0.0f, 0.0f));
+		m_tex = std::make_unique<Core::SDLBackend::Texture>(m_renderer->getRendHand(), "./assets/test.jpg", glm::vec2(0.0f, 0.0f));
 
 		// imgui init
-		IMGUI_CHECKVERSION();
+		/*IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		ImGui::StyleColorsLight();
-		ImGui_ImplSDL3_InitForSDLRenderer(m_window->getWHand(), m_renderer->getRendHand());
+		ImGui::StyleColorsLight();*/
+		//ImGui_ImplSDL3_InitForSDLRenderer(m_window->getWHand(), m_renderer->getRendHand());
 	}
 
 	void Application::run()
@@ -30,10 +30,10 @@ namespace App
 		{
 			m_window->pollEvents();
 			m_renderer->preRender();
-			m_renderer->render(m_tex);
+			m_renderer->render(*m_tex);
 			m_renderer->postRender();
 
-			ImGui_ImplSDL3_NewFrame();
+			/*ImGui_ImplSDL3_NewFrame();
 			ImGui::NewFrame();
 
 			ImGui::Begin("Test");
@@ -41,7 +41,7 @@ namespace App
 			ImGui::End();
 
 			ImGui::Render();
-			ImGui_ImplSDL3_Render
+			ImGui_ImplSDL3_Render*/
 
 			SDL_Delay(50);
 		}

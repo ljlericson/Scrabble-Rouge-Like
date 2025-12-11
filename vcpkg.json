@@ -2,15 +2,23 @@
   "name": "sdltemplate",
   "version-string": "1.0.0",
   "dependencies": [
+    {
+      "name": "sdl3-image",
+      "default-features": false,
+      "features": [
+        "png",
+        "jpeg",
+        "webp"
+      ]
+    },
     "imgui",
     "drlibs",
     "sdl3-ttf",
     "libpng",
-    "sdl3-image",
     "sdl3",
     "glm",
     "openal-soft",
     "nlohmann-json"
   ],
-  "builtin-baseline": "8394d2150d8a7774b2fe869bec36ca7832b2f50e"
+  "builtin-baseline": "37302273f63394714ba7e480a2785f7a5ba450d0"
 }

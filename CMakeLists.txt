@@ -15,7 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(imgui CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(SDL3 CONFIG REQUIRED)
-find_package(PNG REQUIRED)
 find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
@@ -53,7 +52,6 @@ target_link_libraries(sdltemplate PRIVATE
 	glm::glm
 	nlohmann_json::nlohmann_json
 	SDL3::SDL3
-	PNG::PNG
 	SDL3_image::SDL3_image
 	SDL3_ttf::SDL3_ttf
 )
