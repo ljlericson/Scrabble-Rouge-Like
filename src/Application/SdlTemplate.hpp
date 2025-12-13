@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <memory>
 
@@ -7,9 +8,15 @@
 #include <imgui.h>
 //#include <imgui_impl_sdl3.h>
 
+#include "../Core/AssetManager/TextureManager.hpp"
 #include "../Core/SDL2Backend/Window.hpp"
 #include "../Core/SDL2Backend/Texture.hpp"
 #include "../Core/SDL2Backend/Renderer.hpp"
+#include "InputSystem/InputListener.hpp"
+#include "InputSystem/BasicInputObserver.hpp"
+
+#include "GameComponents/Board.hpp"
+
 
 
 
@@ -25,6 +32,8 @@ namespace App
 	private:
 		std::unique_ptr<Core::SDLBackend::Window> m_window;
 		std::unique_ptr<Core::SDLBackend::Renderer> m_renderer;
-		std::unique_ptr <Core::SDLBackend::Texture> m_tex;
+		InputSystem::InputListener m_inputListener;
+
+		GameComponents::Board m_scrabbleBoard;
 	};
 }

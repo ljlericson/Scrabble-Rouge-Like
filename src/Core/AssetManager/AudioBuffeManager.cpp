@@ -2,7 +2,7 @@
 
 namespace Core
 {
-	namespace Manager
+	namespace AssetManager
 	{
 		// Makes a new buffer if one doesn't exist otherise in which case it returns the id of the pre-existing buffer
 		ALuint AudioBufferManager::newBufferOrReference(const char* fpath)

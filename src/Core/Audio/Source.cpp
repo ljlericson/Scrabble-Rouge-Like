@@ -5,7 +5,7 @@ namespace Core
 {
     namespace Audio
     {
-        Source::Source(Manager::AudioBufferManager* bufManager, const char* fpath, glm::vec3 pos)
+        Source::Source(AssetManager::AudioBufferManager* bufManager, const char* fpath, glm::vec3 pos)
             : pos(pos), mrp_bufferManager(bufManager)
         {
             m_bufferID = mrp_bufferManager->newBufferOrReference(fpath);

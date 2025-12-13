@@ -17,16 +17,9 @@ namespace Core
 			SDL_RenderClear(m_rendHand);
 		}
 
-		void Renderer::render(const Texture& tex)
+		void Renderer::render(const Texture& tex, SDL_FRect texRect) const
 		{
-			SDL_FRect rect;
-			rect.x = tex.pos.x;
-			rect.y = tex.pos.y;
-			rect.w = 500; // tex.pos.x;
-			rect.h = 500; // tex.pos.y;
-
-
-			if (!SDL_RenderTexture(m_rendHand, tex.texHand, NULL, &rect))
+			if (!SDL_RenderTexture(m_rendHand, tex.texHand, NULL, &texRect))
 				std::cerr << "ERROR: Texture failed to render " << SDL_GetError() << '\n';
 		}
 

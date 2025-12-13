@@ -22,7 +22,7 @@ namespace Core
 
 			void preRender();
 
-			void render(const Texture& tex);
+			void render(const Texture& tex, SDL_FRect texRect) const;
 
 			void postRender();
 

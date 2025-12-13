@@ -4,8 +4,8 @@ namespace Core
 {
 	namespace SDLBackend
 	{
-		Texture::Texture(SDL_Renderer* renderer, const std::string& fpath, glm::vec2 pos)
-			: pos(pos), texHand(nullptr)
+		Texture::Texture(SDL_Renderer* renderer, const std::string& fpath)
+			: texHand(nullptr)
 		{
             SDL_Surface* surface = IMG_Load(fpath.c_str());
             if (!surface)

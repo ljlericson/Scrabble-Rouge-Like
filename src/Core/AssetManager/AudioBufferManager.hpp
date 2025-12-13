@@ -8,7 +8,7 @@
 
 namespace Core
 {
-	namespace Manager
+	namespace AssetManager
 	{
 		class AudioBufferManager
 		{

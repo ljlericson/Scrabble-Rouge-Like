@@ -15,7 +15,7 @@ namespace Core
 		public:
 			Source() = default;
 			~Source();
-			Source(Manager::AudioBufferManager* bufManager, const char* fpath, glm::vec3 pos);
+			Source(AssetManager::AudioBufferManager* bufManager, const char* fpath, glm::vec3 pos);
 
 			void play(uint8_t volume) const;
 
@@ -28,7 +28,7 @@ namespace Core
 			ALuint m_id = 0;
 
 			// IMPORTANT: just a reference pointer, not owned 
-			Manager::AudioBufferManager* mrp_bufferManager = nullptr; // not owned
+			AssetManager::AudioBufferManager* mrp_bufferManager = nullptr; // not owned
 		};
 	}
 }
