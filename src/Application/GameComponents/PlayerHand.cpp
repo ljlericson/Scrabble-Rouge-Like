@@ -5,7 +5,7 @@ namespace App
 	namespace GameComponents
 	{
 		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, size_t numTiles, size_t numTilesPerRound)
-			: m_highlighter(SDL_Color{ 0, 0, 255, 100 }, numTiles),
+			: m_highlighter(SDL_Color{ .r = 255, .g = 0, .b = 0, .a = 50 }, numTiles),
 			  m_numTilesPerRound(numTilesPerRound),
 			  mr_renderer(renderer),
 			  mr_eventDispatcher(eventDispatcher),
@@ -25,6 +25,7 @@ namespace App
 				if (result == GameComponents::Tile::PressState::justReleased)
 				{
 					scrabbleBoard.addTileToBoard(tile.get());
+					m_badWordIndexes = scrabbleBoard.getBadWordIndexes();
 				}
 				else if (result == GameComponents::Tile::PressState::pressed)
 				{
@@ -43,25 +44,26 @@ namespace App
 
 				tile->render(renderer);
 			}
+			for (auto& tileReference : m_inactiveTiles)
+			{
+				tileReference.get()->render(renderer);
+			}
+			for (size_t badTileIndes : m_badWordIndexes)
+				m_highlighter.render(renderer, badTileIndes);
 		}
 
-		void PlayerHand::onInput(const bool* keyboardState, EventType e)
+		void PlayerHand::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 		{
 			switch (e)
 			{
-			case EventType::roundStart:
-				mr_eventDispatcher.reserveObserverVectorCapacity(m_numTilesPerRound);
-
+			case EventType::gameStart:
+				// mr_eventDispatcher.reserveObserverVectorCapacity(m_numTilesPerRound);
 				for (size_t i = 0; i <= m_numTilesPerRound; i++)
 				{
 					/*auto [beginIt, endIt] = mr_eventDispatcher.getObserverVectorIterators();
 					size_t distance = std::distance(endIt - i, endIt);*/
 					m_tiles.push_back(std::make_unique<Tile>(mr_renderer, m_numTiles));
 					mr_eventDispatcher.attach(*m_tiles.back());
-				}
-				for (int i = 0; (i < 7) && (m_activeTiles.size() <= m_numTilesPerRound); i++)
-				{
-					m_activeTiles.push_back(m_tiles.at(i));
 				}
 				break;
 			case EventType::gameEnd:
@@ -72,6 +74,50 @@ namespace App
 
 				m_activeTiles.clear();
 				m_tiles.clear();
+				break;
+			case EventType::roundStart:
+				if (m_inactiveTiles.size() == m_numTilesPerRound)
+				{
+					std::cout << "NO MORE TILES\n";
+					break;
+				}
+
+				Tile::setSidePadding(0);
+				for (size_t i = 0; (i < 7) && (m_activeTiles.size() <= m_numTilesPerRound); i++)
+				{
+					Tile::incrementSidePadding();
+					m_activeTiles.push_back(m_tiles.at(i + (m_numRounds * 7)));
+					m_activeTiles.at(i).get()->glideToStartPos();
+				}
+				break;
+			case EventType::roundEnd:
+				for (auto& tile : m_activeTiles)
+				{
+					const auto& tilePtr = tile.get();
+					if (tilePtr->getIndex() == SIZE_MAX)
+					{
+						std::cout << "ALL TILES MUST BE USED BEFORE ENDING TURN\n";
+						return;
+					}
+				}
+				for (auto& tile : m_activeTiles)
+				{
+					tile.get()->setInactive();
+					m_inactiveTiles.push_back(tile);
+				}
+
+				m_activeTiles.clear();
+				m_numRounds++;
+				break;
+			case EventType::shuffleTiles:
+				for (auto& tile : m_activeTiles)
+				{
+					const auto& tilePtr = tile.get();
+					if (tilePtr->getIndex() == SIZE_MAX)
+					{
+						tilePtr->shuffleChar(mr_renderer);
+					}
+				}
 			}
 		}
 

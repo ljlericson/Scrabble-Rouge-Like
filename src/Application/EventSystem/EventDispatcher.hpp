@@ -11,6 +11,7 @@
 
 #include "BasicEventObserver.hpp"
 #include "EventType.hpp"
+#include "../../Core/SDL2Backend/Window.hpp"
 
 namespace App
 {
@@ -35,7 +36,7 @@ namespace App
 			
 			void queueEvent(EventType e);
 
-			void poll();
+			void poll(const Core::SDLBackend::Window& window);
 
 		private:
 			std::vector<BasicEventObserver*> m_observers;

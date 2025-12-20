@@ -18,6 +18,8 @@ namespace Core
 
 			SDLBackend::Texture* newTexture(const std::string& key, SDL_Renderer* renderer, const std::string& fpath);
 
+			SDLBackend::Texture* newTexture(const std::string& key, SDL_Renderer* renderer, SDL_Texture* texture);
+
 			SDLBackend::Texture* getTexture(const std::string& key);
 
 			SDLBackend::Texture* getInvalidTex();

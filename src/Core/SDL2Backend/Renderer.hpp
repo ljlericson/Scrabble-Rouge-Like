@@ -31,7 +31,7 @@ namespace Core
 
 			void preRender();
 
-			void render(const Texture& tex, SDL_FRect texRect) const;
+			void render(const Texture& tex, SDL_FRect texRect, SDL_FRect* srcRect = nullptr) const;
 
 			void render(SDL_FRect rect, SDL_Color col, DrawType type) const;
 

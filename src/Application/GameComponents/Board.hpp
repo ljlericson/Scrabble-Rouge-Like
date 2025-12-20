@@ -4,7 +4,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_set>
 
+#include <hunspell/hunspell.hxx>
 #include <SDL3/SDL.h>
 
 #include "BasicGameComponent.hpp"
@@ -35,9 +37,11 @@ namespace App
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 
-			void onInput(const bool* keyboardState, EventType e) override;
+			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
 			void addTileToBoard(Tile* tile);
+
+			std::vector<size_t> getBadWordIndexes();
 
 			size_t getSnapTileIndex(glm::vec2 pos);
 
@@ -51,6 +55,8 @@ namespace App
 			Core::SDLBackend::Texture* m_tex = nullptr;
 			SDL_FRect m_texRect;
 			SDL_FRect m_texRectShaking;
+
+			Hunspell m_spellChecker;
 			
 			bool m_firstTile = true;
 

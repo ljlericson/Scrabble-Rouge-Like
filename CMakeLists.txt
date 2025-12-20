@@ -20,6 +20,13 @@ find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+find_path(HUNSPELL_INCLUDE_DIR NAMES hunspell/hunspell.h REQUIRED)
+find_library(HUNSPELL_LIBRARY 
+    NAMES libhunspell-1.7 libhunspell-1.6 hunspell-1.7 hunspell-1.6 libhunspell hunspell
+    REQUIRED
+)
+
+
 # No C++20 modules
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF) 
 
@@ -44,6 +51,7 @@ target_sources(sdltemplate PRIVATE ${sdltemplate_SOURCES})
 # Includes
 target_include_directories(sdltemplate PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+	${HUNSPELL_INCLUDE_DIR}
 )
 
 target_link_libraries(sdltemplate PRIVATE
@@ -54,6 +62,7 @@ target_link_libraries(sdltemplate PRIVATE
 	SDL3::SDL3
 	SDL3_image::SDL3_image
 	SDL3_ttf::SDL3_ttf
+	${HUNSPELL_LIBRARY}
 )
 # --- Compiler warnings ---
 if(MSVC)

@@ -5,8 +5,9 @@ namespace App
 	namespace GameComponents
 	{
 		Board::Board(const Core::SDLBackend::Renderer& renderer, const Core::SDLBackend::Window& window)
+			: m_spellChecker("./assets/dictionaries/en_AU.aff", "./assets/dictionaries/en_AU.dic")
 		{
-			m_tex = Core::AssetManager::textureManager->newTexture("Board", renderer.getRendHand(), "./assets/textures/board.png");
+			m_tex = Core::AssetManager::textureManager->newTexture("Board", renderer.getRendHand(), "./assets/textures/board2.png");
 			auto [w, h] = Utils::getWindowSize();
 
 			m_texRectShaking.h = static_cast<float>(h);
@@ -27,7 +28,7 @@ namespace App
 			m_texRectShaking = m_texRect;
 		}
 		
-		void Board::onInput(const bool* keyboardState, EventType e)
+		void Board::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 		{
 			if (keyboardState[SDL_SCANCODE_G])
 				m_texRect.x += 1.0f;
@@ -110,18 +111,18 @@ namespace App
 
 			// --- adjacency check ---
 			auto occupiedAt = [&](int x, int y) -> bool
-				{
-					if (x < 0 || x >= static_cast<int>(m_numTiles) ||
-						y < 0 || y >= static_cast<int>(m_numTiles))
-						return false;
-
-					const size_t idx = static_cast<size_t>(y) * m_numTiles + x;
-					for (const Tile* t : m_tiles)
-						if (t->getIndex() == idx)
-							return true;
-
+			{
+				if (x < 0 || x >= static_cast<int>(m_numTiles) ||
+					y < 0 || y >= static_cast<int>(m_numTiles))
 					return false;
-				};
+
+				const size_t idx = static_cast<size_t>(y) * m_numTiles + x;
+				for (const Tile* t : m_tiles)
+					if (t->getIndex() == idx)
+						return true;
+
+				return false;
+			};
 
 			const bool hasAdjacent =
 				occupiedAt(tileX - 1, tileY) ||
@@ -151,6 +152,90 @@ namespace App
 			// --- success ---
 			tile->snapToTile(index);
 			m_tiles.push_back(tile);
+		}
+
+		std::vector<size_t> Board::getBadWordIndexes()
+		{
+			const size_t N = m_numTiles;
+
+			// Build board grid: index -> char
+			std::vector<char> grid(N * N, '\0');
+			for (const Tile* tile : m_tiles)
+			{
+				if (tile->getIndex() != SIZE_MAX)
+					grid[tile->getIndex()] = tile->getTileChar();
+			}
+
+			std::unordered_set<size_t> badIndexes; // avoid duplicates
+
+			// -------- Horizontal scan --------
+			for (size_t y = 0; y < N; ++y)
+			{
+				std::string word;
+				std::vector<size_t> wordIndexes;
+
+				for (size_t x = 0; x < N; ++x)
+				{
+					const size_t idx = y * N + x;
+					const char c = grid[idx];
+
+					if (c != '\0')
+					{
+						word.push_back(c);
+						wordIndexes.push_back(idx);
+					}
+					else
+					{
+						if (word.length() >= 2 && !m_spellChecker.spell(word))
+						{
+							badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+						}
+						word.clear();
+						wordIndexes.clear();
+					}
+				}
+
+				if (word.length() >= 2 && !m_spellChecker.spell(word))
+				{
+					badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+				}
+			}
+
+			// -------- Vertical scan --------
+			for (size_t x = 0; x < N; ++x)
+			{
+				std::string word;
+				std::vector<size_t> wordIndexes;
+
+				for (size_t y = 0; y < N; ++y)
+				{
+					const size_t idx = y * N + x;
+					const char c = grid[idx];
+
+					if (c != '\0')
+					{
+						word.push_back(c);
+						wordIndexes.push_back(idx);
+					}
+					else
+					{
+						if (word.length() >= 2 && !m_spellChecker.spell(word))
+						{
+							badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+						}
+						word.clear();
+						wordIndexes.clear();
+					}
+				}
+
+				if (word.length() >= 2 && !m_spellChecker.spell(word))
+				{
+					badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+				}
+			}
+
+			// Convert to vector
+			return std::vector<size_t>(badIndexes.begin(), badIndexes.end());
 		}
 
 		size_t Board::getSnapTileIndex(glm::vec2 pos)

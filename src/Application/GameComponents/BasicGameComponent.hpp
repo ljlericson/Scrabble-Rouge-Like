@@ -11,7 +11,7 @@ namespace App
 		public:
 			virtual ~BasicGameComponent() = default;
 
-			virtual void onInput(const bool* keyboardState, EventType e) override = 0;
+			virtual void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override = 0;
 		};
 	}
 }

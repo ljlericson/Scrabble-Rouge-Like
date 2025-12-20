@@ -14,7 +14,7 @@ namespace App
 		public:
 			virtual ~BasicEventObserver() = default;
 
-			virtual void onInput(const bool* keyboardState, EventType e) = 0;
+			virtual void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) = 0;
 		};
 	}
 }

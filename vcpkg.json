@@ -11,14 +11,18 @@
         "webp"
       ]
     },
-    "imgui",
+    {
+      "name": "imgui",
+      "features": ["sdl3-binding", "sdl3-renderer-binding"]
+    },
     "drlibs",
     "sdl3-ttf",
     "libpng",
     "sdl3",
     "glm",
     "openal-soft",
-    "nlohmann-json"
+    "nlohmann-json",
+    "hunspell"
   ],
   "builtin-baseline": "37302273f63394714ba7e480a2785f7a5ba450d0"
 }

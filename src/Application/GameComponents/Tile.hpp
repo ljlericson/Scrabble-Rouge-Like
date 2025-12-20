@@ -35,7 +35,7 @@ namespace App
 
 			void snapToTile(size_t index);
 
-			void onInput(const bool* keyboardState, EventType e) override;
+			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
 			PressState handlePress();
 
@@ -44,6 +44,16 @@ namespace App
 			size_t getIndex() const;
 
 			const char getTileChar() const;
+
+			void shuffleChar(const Core::SDLBackend::Renderer& renderer);
+
+			// playerhand state stuff
+
+			void setInactive();
+
+			static void setSidePadding(size_t num);
+
+			static void incrementSidePadding();
 
 		public:
 			glm::vec2 pos;
@@ -55,12 +65,15 @@ namespace App
 			bool m_ctrPressed = false;
 			bool m_tilePressed = false;
 			bool m_glidingToStart = false;
+			bool m_firstGlide = true;
+
+			bool m_tileActive = true;
 
 			size_t m_index = SIZE_MAX;
 			size_t m_numTilesOnBoard = 0;
 
 			std::string m_char;
-			Core::SDLBackend::Texture m_textTexture;
+			Core::SDLBackend::Texture* m_textTexture;
 
 			inline static size_t sm_numTiles = 0;
 			inline static bool sm_tilePressEngaged = false;

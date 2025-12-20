@@ -6,5 +6,7 @@ enum class EventType
 	screenShake,
 	gameStart,
 	gameEnd,
+	shuffleTiles,
 	roundStart,
+	roundEnd
 };

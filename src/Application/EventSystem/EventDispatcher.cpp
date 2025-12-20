@@ -2,6 +2,7 @@
 #include "../GameComponents/Board.hpp"
 #include "../GameComponents/Tile.hpp"
 #include "../GameComponents/PlayerHand.hpp"
+#include "../UIComponents/Button.hpp"
 
 namespace App
 {
@@ -54,7 +55,7 @@ namespace App
 			m_eventQueue.push_back(e);
 		}
 
-		void EventDispatcher::poll()
+		void EventDispatcher::poll(const Core::SDLBackend::Window& window)
 		{
 			SDL_PumpEvents();
 			const bool* keyboardState = SDL_GetKeyboardState(nullptr);
@@ -64,14 +65,14 @@ namespace App
 				// avoid invalid iterators from playerhand
 				// increasing m_observers on certain update
 				for (size_t i = 0; i < m_observers.size(); i++)
-					m_observers.at(i)->onInput(keyboardState, m_eventQueue.front());
+					m_observers.at(i)->onInput(keyboardState, m_eventQueue.front(), window.getUnhandledEvents());
 
 				m_eventQueue.erase(m_eventQueue.begin());
 			}
 			else
 			{
 				for (auto* observer : m_observers)
-					observer->onInput(keyboardState, EventType::noEvent);
+					observer->onInput(keyboardState, EventType::noEvent, window.getUnhandledEvents());
 			}
 		}
 	}
@@ -84,4 +85,7 @@ namespace App
 
 	template void EventSystem::EventDispatcher::attach<App::GameComponents::PlayerHand>(App::GameComponents::PlayerHand&);
 	template void EventSystem::EventDispatcher::dettach<App::GameComponents::PlayerHand>(App::GameComponents::PlayerHand&);
+
+	template void EventSystem::EventDispatcher::attach<App::UIComponents::Button>(App::UIComponents::Button&);
+	template void EventSystem::EventDispatcher::dettach<App::UIComponents::Button>(App::UIComponents::Button&);
 }

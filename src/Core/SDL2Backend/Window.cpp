@@ -30,7 +30,19 @@ namespace Core
 		{
 			m_eventsToHandle.clear();
 			while (SDL_PollEvent(&m_event))
+			{
 				m_eventsToHandle.push_back(m_event.type);
+			}
+		}
+
+		void Window::pollEvents(const std::function<void(SDL_Event* e)>& callback)
+		{
+			m_eventsToHandle.clear();
+			while (SDL_PollEvent(&m_event))
+			{
+				callback(&m_event);
+				m_eventsToHandle.push_back(m_event.type);
+			}
 		}
 
 		void Window::changeWinName(const std::string& name)

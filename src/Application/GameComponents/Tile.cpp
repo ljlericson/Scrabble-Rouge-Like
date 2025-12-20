@@ -5,59 +5,73 @@ namespace App
 	namespace GameComponents
 	{
 		Tile::Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles)
-			: pos(0.0f), m_numTilesOnBoard(numTiles), m_char("")
+			: m_startPos(0.0f), m_numTilesOnBoard(numTiles), m_char("")
 		{
-			sm_numTiles++;
-
-
-			if(!sm_font)
+			if (!sm_font)
 				sm_font = TTF_OpenFont("./assets/font.ttf", 32);
 
-			m_tex = Core::AssetManager::textureManager->newTexture("Tile", renderer.getRendHand(), "./assets/textures/test.jpg");
+			m_tex = Core::AssetManager::textureManager->newTexture(
+				"Tile",
+				renderer.getRendHand(),
+				"./assets/textures/button.png"
+			);
 
 			auto [w, h] = Utils::getWindowSize();
 			m_texRect.h = h / static_cast<float>(numTiles);
 			m_texRect.w = h / static_cast<float>(numTiles);
-			pos.x = static_cast<float>(w) - m_texRect.w - (sm_numTiles * m_texRect.w);
-			pos.y = static_cast<float>(h) - m_texRect.h - 50.0f;
+			pos.x = w + 50.0f;
+			pos.y = h + 50.0f;
+			
 
 			//const char* character = const_cast<char*>(&m_char);
 			m_char = { char('A' + Utils::getRandomInt(0, 24)) };
 
-			m_startPos = pos;
+			SDL_Surface* textSurface = TTF_RenderGlyph_Solid(sm_font, m_char.front(), SDL_Color(255, 0, 0, 255));
+			if (!textSurface)
+				std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
+
+			m_textTexture = Core::AssetManager::textureManager->newTexture(
+				std::string("text") + m_char,
+				renderer.getRendHand(),
+				SDL_CreateTextureFromSurface(renderer.getRendHand(), textSurface)
+			);
+
+			SDL_DestroySurface(textSurface);
 		}
 
 		void Tile::render(const Core::SDLBackend::Renderer& renderer)
 		{
 			m_texRect.x = pos.x;
 			m_texRect.y = pos.y;
-			if(!m_textTexture.texHand)
-			{
-				SDL_Surface* textSurface = TTF_RenderText_Solid(sm_font, m_char.c_str(), m_char.length(), SDL_Color(255, 0, 0, 255));
-				if (!textSurface)
-					std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
-				m_textTexture = std::move(Core::SDLBackend::Texture(SDL_CreateTextureFromSurface(renderer.getRendHand(), textSurface)));
-				SDL_DestroySurface(textSurface);
-			}
 
 			renderer.render(*m_tex, m_texRect);
-			renderer.render(m_textTexture, m_texRect);
+			renderer.render(*m_textTexture, m_texRect);
 		}
 
 		void Tile::glideToStartPos()
 		{
-			sm_numTiles++;
+			if (m_firstGlide)
+			{
+				m_firstGlide = false;
+				auto [w, h] = Utils::getWindowSize();
+				m_startPos.x = static_cast<float>(w) - m_texRect.w - (sm_numTiles * m_texRect.w);
+				m_startPos.y = static_cast<float>(h) - m_texRect.h - 50.0f;
+			}
+			if (!m_tileActive)
+				return;
+
 			m_glidingToStart = true;
 		}
 
 		void Tile::snapToTile(size_t index)
 		{
-			sm_numTiles--;
+			if (!m_tileActive)
+				return;
+
 			m_index = index;
 
 			if (m_index == SIZE_MAX)
 			{
-				std::cout << "FAILED\n";
 				this->glideToStartPos();
 				return;
 			}
@@ -72,9 +86,16 @@ namespace App
 			pos.y = tileY * tileSize;
 		}
 
-		void Tile::onInput(const bool* keyboardState, EventType e)
+		void Tile::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 		{
-			m_ctrPressed = keyboardState[SDL_SCANCODE_LCTRL];
+			if (!m_tileActive)
+				return;
+
+			if(std::find(events.begin(), events.end(), SDL_EVENT_MOUSE_BUTTON_DOWN) != events.end())
+				m_ctrPressed = true;
+			else if (std::find(events.begin(), events.end(), SDL_EVENT_MOUSE_BUTTON_UP) != events.end())
+				m_ctrPressed = false;
+			
 
 			switch (e)
 			{
@@ -99,6 +120,9 @@ namespace App
 
 		Tile::PressState Tile::handlePress()
 		{
+			if (!m_tileActive)
+				return PressState::notPressed;
+
 			const float minX = pos.x;
 			const float minY = pos.y;
 			const float maxX = pos.x + m_texRect.w;
@@ -151,6 +175,43 @@ namespace App
 		size_t Tile::getIndex() const
 		{
 			return m_index;
+		}
+
+		const char Tile::getTileChar() const
+		{
+			return m_char.front();
+		}
+
+		void Tile::shuffleChar(const Core::SDLBackend::Renderer& renderer)
+		{
+			m_char = { char('A' + Utils::getRandomInt(0, 24)) };
+
+			SDL_Surface* textSurface = TTF_RenderGlyph_Solid(sm_font, m_char.front(), SDL_Color(255, 0, 0, 255));
+			if (!textSurface)
+				std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
+
+			m_textTexture = Core::AssetManager::textureManager->newTexture(
+				std::string("text") + m_char,
+				renderer.getRendHand(),
+				SDL_CreateTextureFromSurface(renderer.getRendHand(), textSurface)
+			);
+
+			SDL_DestroySurface(textSurface);
+		}
+
+		void Tile::setInactive()
+		{
+			m_tileActive = false;
+		}
+
+		void Tile::setSidePadding(size_t num)
+		{
+			sm_numTiles = num;
+		}
+
+		void Tile::incrementSidePadding()
+		{
+			sm_numTiles++;
 		}
 	}
 }

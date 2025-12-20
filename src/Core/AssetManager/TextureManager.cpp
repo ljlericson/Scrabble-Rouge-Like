@@ -29,6 +29,30 @@ namespace Core
 			}
 		}
 
+		SDLBackend::Texture* TextureManager::newTexture(const std::string& key, SDL_Renderer* renderer, SDL_Texture* texture)
+		{
+			if (!mrp_renderer)
+				mrp_renderer = renderer;
+
+			// avoid texture creation if texture exists
+			if (m_textures.contains(key))
+				return m_textures.at(key).get();
+
+			auto tex = std::make_unique<SDLBackend::Texture>(texture);
+
+			if (tex->texHand)
+			{
+				m_textures.insert({ key, std::move(tex) });
+
+				return m_textures.at(key).get();
+			}
+			// texture is invalid so we return the invalid tex
+			else
+			{
+				return this->getInvalidTex();
+			}
+		}
+
 		SDLBackend::Texture* TextureManager::getTexture(const std::string& key)
 		{
 			if (m_textures.contains(key))
