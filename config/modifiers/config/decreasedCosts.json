@@ -1,0 +1,11 @@
+{
+    "id":"decreasedCosts",
+    "description":"Decrease all costs",
+    "cost": 50,
+    "stackable": false,
+    "rarity": 1,
+    "script":"<NO-SCRIPT>",
+    "modifiers": {
+        "globalPriceReduction": 1.3
+    }
+}

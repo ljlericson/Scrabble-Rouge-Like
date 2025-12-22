@@ -8,5 +8,7 @@ enum class EventType
 	gameEnd,
 	shuffleTiles,
 	roundStart,
-	roundEnd
+	roundEnd,
+
+	enterDevMode
 };

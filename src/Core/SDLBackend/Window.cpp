@@ -23,7 +23,7 @@ namespace Core
 		Window::Window(const std::string& title, uint16_t w, uint16_t h)
 			: m_w(w), m_h(h), m_event{}
 		{
-			m_whand = SDL_CreateWindow("3D Engine", m_w, m_h, SDL_WINDOW_RESIZABLE);
+			m_whand = SDL_CreateWindow("3D Engine", m_w, m_h, 0);
 		}
 
 		void Window::pollEvents()

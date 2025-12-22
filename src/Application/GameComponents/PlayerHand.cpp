@@ -10,7 +10,9 @@ namespace App
 			  mr_renderer(renderer),
 			  mr_eventDispatcher(eventDispatcher),
 			  m_numTiles(numTiles),
-			  m_scoreText(glm::vec2(Utils::getWindowSize().first - 75.0f, 0.0f), 75, 32, "./assets/font.ttf", SDL_Color(0, 255, 0, 255), "SCORE: ___")
+			  m_scoreText(glm::vec2(Utils::getWindowSize().first - 75.0f, 0.0f), 32, 32, "./assets/font.ttf", SDL_Color(0, 255, 0, 255), "0"),
+			  m_scoreTextOverall(glm::vec2(Utils::getWindowSize().first - 75.0f, 32), 32, 32, "./assets/font.ttf", SDL_Color(255, 0, 0, 255), "0")
+
 		{
 			eventDispatcher.attach(*this);
 		}
@@ -55,15 +57,9 @@ namespace App
 			for (size_t badTileIndes : m_badWordIndexes)
 				m_highlighter.render(renderer, badTileIndes);
 
-			/*m_scoreTextStr = m_scoreText.getText();
-			for (size_t i = 0; i < Utils::getNumDigits(m_score); i++)
-			{
-				m_scoreTextStr.erase(m_scoreTextStr.end());
-			}
-			m_scoreTextStr.append(std::to_string(m_score));*/
 			m_scoreText.setText(std::to_string(m_score));
 			m_scoreText.render(renderer);
-			//m_scoreTextStr = "Score: ___";
+			m_scoreTextOverall.render(renderer);
 		}
 
 		void PlayerHand::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
@@ -87,19 +83,31 @@ namespace App
 					mr_eventDispatcher.dettach(*tile);
 				}
 
-				m_activeTiles.clear();
-				m_tiles.clear();
+				m_scoreOverall += m_score;
 				m_score = 0;
+				m_scoreTextOverall.setText(std::to_string(m_scoreOverall));
+				m_activeTiles.clear();
+				m_inactiveTiles.clear();
+				m_tiles.clear();
+				m_badWordIndexes.clear();
 				break;
 			case EventType::roundStart:
 				if (m_inactiveTiles.size() == m_numTilesPerRound)
 				{
-					std::cout << "NO MORE TILES\n";
+					Console::ccout << "NO MORE TILES" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					break;
 				}
 				else if(m_activeTiles.size() > 0)
 				{
-					std::cout << "ROUND ALREADY STARTED\n";
+					Console::ccout << "ROUND ALREADY STARTED\n";
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					break;
 				}
 
@@ -114,7 +122,11 @@ namespace App
 			case EventType::roundEnd:
 				if (m_badWordIndexes.size() > 0)
 				{
-					std::cout << "ALL WORDS MUST BE CORRECTLY SPELLED\n";
+					Console::ccout << "ALL WORDS MUST BE CORRECTLY SPELLED" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					return;
 				}
 				for (auto& tile : m_activeTiles)
@@ -122,7 +134,11 @@ namespace App
 					const auto& tilePtr = tile.get();
 					if (tilePtr->getIndex() == SIZE_MAX)
 					{
-						std::cout << "ALL TILES MUST BE USED BEFORE ENDING TURN\n";
+						Console::ccout << "ALL TILES MUST BE USED BEFORE ENDING TURN" << std::endl;
+						auto [begin, end] = Console::cchat.getMessageIterators();
+						size_t elem = std::distance(begin, end) - 1;
+						Console::Message& mes = Console::cchat.getMessage(elem);
+						mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 						return;
 					}
 				}
@@ -148,7 +164,11 @@ namespace App
 				}
 				if (m_score < numTilesToShuffle * 5)
 				{
-					std::cout << "You too broke for that shit :(\n";
+					Console::ccout << "You too broke for that shit :(" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					break;
 				}
 

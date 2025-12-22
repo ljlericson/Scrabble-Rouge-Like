@@ -26,10 +26,12 @@ namespace Core
 			inline static std::unordered_map<std::string, TTF_Font*> sm_fonts;
 		};*/
 
-		Text::Text(glm::vec2 pos, float w, float h, const std::string& fontFPath, SDL_Color color, const std::string& text)
+		Text::Text(glm::vec2 pos, float w, float h, const std::string& fontFPath, SDL_Color color, const std::string& text, WidthGrowthSide growthSide)
 			:
+			m_gorwthSide(growthSide),
+			m_charWidth(w),
 			pos(pos),
-			m_texRect(pos.x, pos.y, static_cast<float>(w), static_cast<float>(h)),
+			m_texRect(pos.x, pos.y, 0.0f, static_cast<float>(h)),
 			m_col(color),
 			m_text(text)
 		{
@@ -89,8 +91,12 @@ namespace Core
 
 			if(!m_manualRectMode)
 			{
+				if(m_gorwthSide == WidthGrowthSide::left)
+					pos.x -= ((m_charWidth * static_cast<int>(m_text.length())) - m_texRect.w);
+
 				m_texRect.x = pos.x;
 				m_texRect.y = pos.y;
+				m_texRect.w = static_cast<float>(m_charWidth * static_cast<int>(m_text.length()));
 			}
 
 			renderer.render(*m_tex, m_texRect);

@@ -13,6 +13,7 @@
 #include "../EventSystem/EventDispatcher.hpp"
 #include "../../Core/SDLBackend/Renderer.hpp"
 #include "../../Core/SDLBackend/Text.hpp"
+#include "../Console/ChatStream.h"
 
 
 namespace App
@@ -40,11 +41,13 @@ namespace App
 			std::vector<size_t> m_badWordIndexes;
 			std::string m_scoreTextStr;
 			Core::SDLBackend::Text m_scoreText;
+			Core::SDLBackend::Text m_scoreTextOverall;
 
 			const Core::SDLBackend::Renderer& mr_renderer;
 			EventSystem::EventDispatcher& mr_eventDispatcher;
 
 			int m_score = 0;
+			size_t m_scoreOverall = 0;
 			uint8_t m_numRounds = 0;
 
 			// config items

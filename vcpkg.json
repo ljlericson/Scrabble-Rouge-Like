@@ -22,7 +22,9 @@
     "glm",
     "openal-soft",
     "nlohmann-json",
-    "hunspell"
+    "hunspell",
+    "lua",
+    "sol2"
   ],
   "builtin-baseline": "37302273f63394714ba7e480a2785f7a5ba450d0"
 }

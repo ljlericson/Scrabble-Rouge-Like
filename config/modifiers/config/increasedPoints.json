@@ -1,0 +1,12 @@
+{
+    "id":"increasedPoints",
+    "description":"Gives increased points",
+    "cost": 50,
+    "rarity": 1,
+    "stackable": true,
+    "script":"<NO-SCRIPT>",
+    "modifiers": {
+        "pointsScoredMultiplier": 1.4,
+        "roundStartingPoints": 30
+    }
+}

@@ -16,9 +16,13 @@
 #include "../Core/SDLBackend/Renderer.hpp"
 #include "EventSystem/EventDispatcher.hpp"
 
+#include "Console/ChatStream.h"
+#include "Console/ChatConsole.h"
 #include "GameComponents/Board.hpp"
 #include "GameComponents/PlayerHand.hpp"
 #include "UIComponents/Button.hpp"
+#include "Shop/Shop.hpp"
+
 #include "../Utils/Utils.hpp"
 
 
@@ -45,5 +49,7 @@ namespace App
 
 		std::function<void(SDL_Event* e)> mf_ImGuiEventCallback;
 		EventSystem::EventDispatcher m_eventDispatcher;
+
+		bool m_fullscreen = false;
 	};
 }

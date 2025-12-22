@@ -23,6 +23,14 @@ namespace App
 
 		void Board::render(const Core::SDLBackend::Renderer& renderer)
 		{
+			if (!m_active)
+			{
+				if (m_texRect.x < -m_texRect.w)
+					return;
+				else
+					m_texRect.x -= 10;
+			}
+
 			auto [w, h] = Utils::getWindowSize();
 			m_texRect.h = static_cast<float>(h);
 			m_texRect.w = static_cast<float>(h);
@@ -42,9 +50,16 @@ namespace App
 				m_texRectShaking.x += Utils::getRandomInt(0, 10);
 				m_texRectShaking.y += Utils::getRandomInt(0, 10);
 				break;
+			case EventType::gameStart:
+				m_texRect.x = 0;
+				m_active = true;
+				break;
 			case EventType::gameEnd:
+				m_active = false;
 				m_tiles.clear();
 				break;
+			case EventType::enterDevMode:
+				m_devMode = true;
 			}
 
 		}
@@ -52,6 +67,9 @@ namespace App
 
 		void Board::addTileToBoard(Tile* tile)
 		{
+			if (!m_active)
+				return;
+
 			constexpr float snapMargin = 10.0f;
 
 			const float minX = m_texRect.x;
@@ -160,6 +178,9 @@ namespace App
 
 		std::pair<std::vector<size_t>, int> Board::getBadWordIndexesAndScore()
 		{
+			if (!m_active)
+				return { {}, 0 };
+
 			const size_t N = m_numTiles;
 			int score = 0;
 
@@ -256,13 +277,25 @@ namespace App
 				}
 			}
 
-			int mscore = m_score;
-			m_score = score;
-			return { std::vector<size_t>(badIndexes.begin(), badIndexes.end()), score - mscore };
+			if(!m_devMode)
+			{
+				int mscore = m_score;
+				m_score = score;
+				return { std::vector<size_t>(badIndexes.begin(), badIndexes.end()), score - mscore };
+			}
+			else
+			{
+				int mscore = m_score;
+				m_score = score;
+				return { std::vector<size_t>{}, score - mscore };
+			}
 		}
 
 		size_t Board::getSnapTileIndex(glm::vec2 pos)
 		{
+			if (!m_active)
+				return SIZE_MAX;
+
 			constexpr float snapMargin = 10.0f;
 
 			const float minX = m_texRect.x;

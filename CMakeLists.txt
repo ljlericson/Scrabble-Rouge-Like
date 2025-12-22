@@ -18,6 +18,8 @@ find_package(SDL3 CONFIG REQUIRED)
 find_package(SDL3_image CONFIG REQUIRED)
 find_package(SDL3_ttf CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(lua REQUIRED)
+find_package(sol2 REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 find_path(HUNSPELL_INCLUDE_DIR NAMES hunspell/hunspell.h REQUIRED)
@@ -62,6 +64,8 @@ target_link_libraries(sdltemplate PRIVATE
 	SDL3::SDL3
 	SDL3_image::SDL3_image
 	SDL3_ttf::SDL3_ttf
+    lua 
+    sol2::sol2
 	${HUNSPELL_LIBRARY}
 )
 # --- Compiler warnings ---

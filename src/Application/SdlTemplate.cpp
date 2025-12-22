@@ -99,19 +99,65 @@ namespace App
 		ImGui::NewFrame();
 		this->ImGuiTheme();
 
+		Shop::Shop::Render();
+
 		ImGui::Begin("CONTROLS");
-		if (ImGui::Button("End Round"))
-			m_eventDispatcher.queueEvent(EventType::roundEnd);
-		if (ImGui::Button("Start Round"))
-			m_eventDispatcher.queueEvent(EventType::roundStart);
-		if (ImGui::Button("End Game"))
-			m_eventDispatcher.queueEvent(EventType::gameEnd);
-		if (ImGui::Button("Start Game"))
-			m_eventDispatcher.queueEvent(EventType::gameStart);
-		if (ImGui::Button("Shuffle unused tiles"))
-			m_eventDispatcher.queueEvent(EventType::shuffleTiles);
-		if (ImGui::Button("Run TM Garbage Collector"))
-			Core::AssetManager::textureManager->runGarbargeCollector();
+		if(ImGui::CollapsingHeader("GAME EVENTS"))
+		{
+			if (ImGui::Button("End Round"))
+				m_eventDispatcher.queueEvent(EventType::roundEnd);
+			if (ImGui::Button("Start Round"))
+				m_eventDispatcher.queueEvent(EventType::roundStart);
+			if (ImGui::Button("End Game"))
+				m_eventDispatcher.queueEvent(EventType::gameEnd);
+			if (ImGui::Button("Start Game"))
+				m_eventDispatcher.queueEvent(EventType::gameStart);
+			if (ImGui::Button("Shuffle unused tiles"))
+				m_eventDispatcher.queueEvent(EventType::shuffleTiles);
+			if (ImGui::Button("Run TM Garbage Collector"))
+				Core::AssetManager::textureManager->runGarbargeCollector();
+			if (ImGui::Button("Toggle Fullscreen"))
+			{
+				m_fullscreen = m_fullscreen ? false : true;
+				SDL_DisplayID displayID = SDL_GetDisplayForWindow(m_window->getWHand());
+				SDL_DisplayMode closestMode;
+				if (!SDL_GetClosestFullscreenDisplayMode(displayID, 1280, 720, 0, true, &closestMode))
+				{
+					Console::ccout << "WINDOW FAILED TO FULLSCREEN" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(0.0f, 255.0f, 0.0f, 255.0f);
+				}
+				SDL_SetWindowFullscreen(m_window->getWHand(), m_fullscreen);
+			}
+		}
+		if (ImGui::CollapsingHeader("Dev Mode"))
+		{
+			std::string input;
+
+			if (ImGui::InputText("Password", &input, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				if(input == "scrabbleDevMode")
+				{
+					m_eventDispatcher.queueEvent(EventType::enterDevMode);
+					Console::ccout << "DEVMODE ACTIVE" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(0.0f, 255.0f, 0.0f, 255.0f);
+				}
+				else
+				{
+					Console::ccout << "INCORRECT DEVMODE PASSWORD" << std::endl;
+					auto [begin, end] = Console::cchat.getMessageIterators();
+					size_t elem = std::distance(begin, end) - 1;
+					Console::Message& mes = Console::cchat.getMessage(elem);
+					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
+				}
+			}
+
+		}
 		ImGui::End();
 	}
 
@@ -178,6 +224,7 @@ namespace App
 			m_playerHand->render(*m_scrabbleBoard, *m_renderer);
 			m_button.render(*m_renderer);
 			this->ImGuiRender();
+			Console::cchat.draw();
 			this->ImGuiPostRender();
 			m_renderer->postRender();
 

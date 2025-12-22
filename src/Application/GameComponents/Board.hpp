@@ -20,6 +20,7 @@
 #include "../../Core/SDLBackend/Texture.hpp"
 #include "../../Utils/Utils.hpp"
 
+
 namespace App
 {
 	namespace GameComponents
@@ -62,7 +63,8 @@ namespace App
 
 			int m_score = 0;
 			
-			bool m_firstTile = true;
+			bool m_devMode = false;
+			bool m_active = true;
 
 			// config items
 			size_t m_numTiles = 15; // number of tiles lengthwise |--->|

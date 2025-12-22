@@ -19,8 +19,14 @@ namespace Core
 		class Text
 		{
 		public:
+			enum class WidthGrowthSide
+			{
+				left,
+				right
+			};
+		public:
 			Text() = default;
-			Text(glm::vec2 pos, float w, float h, const std::string& fontFPath, SDL_Color color, const std::string& text);
+			Text(glm::vec2 pos, float w, float h, const std::string& fontFPath, SDL_Color color, const std::string& text, WidthGrowthSide growthSide = WidthGrowthSide::left);
 
 			void changeColor(SDL_Color color);
 
@@ -52,6 +58,8 @@ namespace Core
 		private:
 			std::string m_text;
 			std::shared_ptr<Texture> m_tex = nullptr;
+			float m_charWidth;
+			WidthGrowthSide m_gorwthSide;
 			SDL_FRect m_texRect;
 			SDL_Color m_col;
 			TTF_Font* m_font = nullptr;
