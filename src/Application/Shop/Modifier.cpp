@@ -16,24 +16,30 @@ namespace App
 				m_script = nullptr;
 		}
 
-		int Modifier::getBonusRoundPoints(const Context& context)
+		int Modifier::getBonusRoundPoints(const Context& context) const
 		{
-			int scriptBonus = 0;
+			int bonusPoints = 0;
+
 			if (m_script)
 			{
-				sol::table contextTable = LuaScripting::Script::getState().create_table();
+				sol::state& lua = LuaScripting::Script::getState();
+
+				sol::table contextTable = lua.create_table();
 				contextTable["event"] = context.event;
-				contextTable["words"] = context.words;
-				auto result = m_script->run(contextTable);
-				if (result.has_value())
-					scriptBonus = result.value()["addScore"];
+				contextTable["words"] = sol::as_table(context.words);
+				contextTable["points"] = context.points;
+
+				if (auto bonus = m_script->run(contextTable))
+					bonusPoints += bonus.value().get<int>("addScore");
 			}
+
 			if (m_staticModifiers.contains(StaticModifierType::pointsScoreMultiplier))
 			{
-				scriptBonus += ((context.points * m_staticModifiers.at(StaticModifierType::pointsScoreMultiplier))
-					- context.points);
+				bonusPoints += (context.points * m_staticModifiers.at(StaticModifierType::pointsScoreMultiplier)) -
+								context.points;
 			}
-			return scriptBonus;
+
+			return bonusPoints;
 		}
 
 		int Modifier::getStartPointsBonus() const

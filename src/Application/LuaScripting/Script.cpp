@@ -7,6 +7,14 @@ namespace App
 		Script::Script(const std::string& file)
 			: m_file(file)
 		{
+			sm_lua.open_libraries(
+				sol::lib::base,
+				sol::lib::math,
+				sol::lib::table,
+				sol::lib::string,
+				sol::lib::debug
+			);
+			// 1. Load Lua file
 			sol::load_result chunk = sm_lua.load_file(file);
 			if (!chunk.valid())
 			{
@@ -19,7 +27,10 @@ namespace App
 				return;
 			}
 
-			sol::protected_function_result exec = chunk();
+			// 2. Execute file (THIS RUNS THE LUA CODE)
+			sol::protected_function script = chunk;
+			sol::protected_function_result exec = script();
+
 			if (!exec.valid())
 			{
 				sol::error err = exec;
@@ -31,7 +42,19 @@ namespace App
 				return;
 			}
 
-			m_entry = sm_lua["onTrigger"];
+			if (exec.get_type() != sol::type::function)
+			{
+				Console::ccout << "[Lua] Script did not return a function: "
+					<< file << std::endl;
+				auto [begin, end] = Console::cchat.getMessageIterators();
+				size_t elem = std::distance(begin, end) - 1;
+				Console::Message& mes = Console::cchat.getMessage(elem);
+				mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
+				return;
+			}
+
+			// 4. Store the returned function
+			m_entry = exec;
 		}
 
 		sol::optional<sol::table> Script::run(const sol::table& context)

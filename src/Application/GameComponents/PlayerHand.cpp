@@ -17,7 +17,7 @@ namespace App
 			eventDispatcher.attach(*this);
 		}
 
-		void PlayerHand::render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer)
+		void PlayerHand::render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer, const Shop::ModifierManager& modifierManager)
 		{
 			for (auto& tileReference : m_activeTiles)
 			{
@@ -32,6 +32,7 @@ namespace App
 					std::tie(m_badWordIndexes, score) = scrabbleBoard.getBadWordIndexesAndScore();
 
 					m_score += score;
+					m_score += modifierManager.getBonusPoints(scrabbleBoard.getWordsOnBoard(), m_score);
 				}
 				else if (result == GameComponents::Tile::PressState::pressed)
 				{

@@ -8,7 +8,7 @@ namespace App
 		{
 			namespace fs = std::filesystem;
 
-			std::string path = "./config/modifiers"; // Path to the directory (e.g., current directory)
+			std::string path = "./config/modifiers/config/"; // Path to the directory (e.g., current directory)
 			try
 			{
 				for (const auto& entry : fs::directory_iterator(path))
@@ -21,7 +21,7 @@ namespace App
 						newModifierInfo.id = newModifierInfo.json["id"].get<std::string>();
 					else
 					{
-						Console::ccout << "[config/modifiers/config ERROR] No id field specified for: " << entry.path() << std::endl;
+						Console::ccout << "[config/modifiers/config ERROR] No id field specified for: " << entry.path().string() << std::endl;
 						auto [begin, end] = Console::cchat.getMessageIterators();
 						size_t elem = std::distance(begin, end) - 1;
 						Console::Message& mes = Console::cchat.getMessage(elem);
@@ -33,7 +33,7 @@ namespace App
 						newModifierInfo.description = newModifierInfo.json["description"].get<std::string>();
 					else
 					{
-						Console::ccout << "[config/modifiers/config ERROR] No description field specified for: " << entry.path() << std::endl;
+						Console::ccout << "[config/modifiers/config ERROR] No description field specified for: " << entry.path().string() << std::endl;
 						auto [begin, end] = Console::cchat.getMessageIterators();
 						size_t elem = std::distance(begin, end) - 1;
 						Console::Message& mes = Console::cchat.getMessage(elem);
@@ -41,11 +41,11 @@ namespace App
 						continue;
 					}
 
-					if (newModifierInfo.json.contains("const"))
+					if (newModifierInfo.json.contains("cost"))
 						newModifierInfo.cost = newModifierInfo.json["cost"].get<int>();
 					else
 					{
-						Console::ccout << "[config/modifiers/config ERROR] No cost field specified for: " << entry.path() << std::endl;
+						Console::ccout << "[config/modifiers/config ERROR] No cost field specified for: " << entry.path().string() << std::endl;
 						auto [begin, end] = Console::cchat.getMessageIterators();
 						size_t elem = std::distance(begin, end) - 1;
 						Console::Message& mes = Console::cchat.getMessage(elem);
@@ -57,7 +57,7 @@ namespace App
 						newModifierInfo.rarity = newModifierInfo.json["rarity"].get<int>();
 					else
 					{
-						Console::ccout << "[config/modifiers/config ERROR] No rarity field specified for: " << entry.path() << std::endl;
+						Console::ccout << "[config/modifiers/config ERROR] No rarity field specified for: " << entry.path().string() << std::endl;
 						auto [begin, end] = Console::cchat.getMessageIterators();
 						size_t elem = std::distance(begin, end) - 1;
 						Console::Message& mes = Console::cchat.getMessage(elem);
@@ -69,13 +69,17 @@ namespace App
 						newModifierInfo.stackable = newModifierInfo.json["stackable"].get<bool>();
 					else
 					{
-						Console::ccout << "[config/modifiers/config ERROR] No stackable field specified for: " << entry.path() << std::endl;
+						Console::ccout << "[config/modifiers/config ERROR] No stackable field specified for: " << entry.path().string() << std::endl;
 						auto [begin, end] = Console::cchat.getMessageIterators();
 						size_t elem = std::distance(begin, end) - 1;
 						Console::Message& mes = Console::cchat.getMessage(elem);
 						mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 						continue;
 					}
+					m_modifierInfo.insert(std::pair{
+						newModifierInfo.id,
+						newModifierInfo
+					});
 				}
 			}
 			catch (const fs::filesystem_error& e)
@@ -88,17 +92,17 @@ namespace App
 			}
 		}
 
-		int ModifierManager::getBonusPoints(const std::vector<std::string>& words, int points)
+		int ModifierManager::getBonusPoints(const std::vector<std::string>& words, int points) const
 		{
 			int bonusPoints = 0;
-			for (auto& [key, modifier] : m_modifiers)
+			for (const auto& [key, modifier] : m_modifiers)
 			{
 				bonusPoints += modifier->getBonusRoundPoints({ .event = "", .words = words, .points = points });
 			}
 			return bonusPoints;
 		}
 
-		std::array<const std::reference_wrapper<ModifierInfo>, 3> ModifierManager::getShopOptions() const
+		void /*std::array<const std::reference_wrapper<ModifierInfo>, 3>*/ ModifierManager::getShopOptions() const
 		{
 
 		}
@@ -161,6 +165,14 @@ namespace App
 						(hasScript ? std::make_unique<LuaScripting::Script>(modifierInfo.json["script"].get<std::string>()) : nullptr)
 					)
 				});
+			}
+			else
+			{
+				Console::ccout << "[config/modifiers/config ERROR] No modifier exists: " << " (ID) : " << id << std::endl;
+				auto [begin, end] = Console::cchat.getMessageIterators();
+				size_t elem = std::distance(begin, end) - 1;
+				Console::Message& mes = Console::cchat.getMessage(elem);
+				mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 			}
 		}
 	}

@@ -31,7 +31,11 @@ namespace App
             ImGui::BeginChild("ScrollingRegion", ImVec2(400, 200), true);
 
             for (auto& msg : m_messages)
-                ImGui::TextColored(msg.color, "%s", msg.text.c_str());
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, msg.color);
+                ImGui::TextWrapped("%s", msg.text.c_str());
+                ImGui::PopStyleColor();
+            }
 
             if (m_scrollToBottom)
             {

@@ -49,10 +49,13 @@ namespace App
 			size_t getSnapTileIndex(glm::vec2 pos);
 
 			size_t getNumTiles() const;
+			
+			const std::vector<std::string>& getWordsOnBoard() const;
 
 		private:
 			// tiles
 			std::vector<Tile*> m_tiles;
+			std::vector<std::string> m_words;
 			// board renderering
 			std::shared_ptr<Core::SDLBackend::Texture> m_tex = nullptr;
 			SDL_FRect m_texRect;

@@ -4,8 +4,8 @@
     "cost": 50,
     "stackable": true,
     "rarity": 2,
-    "script":"./config/scripts/deacreasedCosts.lua",
+    "script":"./config/modifiers/scripts/fourLengthWordMultiplyer.lua",
     "staticModifiers": {
-        
+
     }
 }

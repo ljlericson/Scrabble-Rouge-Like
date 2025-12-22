@@ -33,7 +33,7 @@ namespace App
 					 bool stackable,
 				     std::unique_ptr<LuaScripting::Script> script = nullptr);
 			
-			int getBonusRoundPoints(const Context& context);
+			int getBonusRoundPoints(const Context& context) const;
 
 			int getStartPointsBonus() const;
 

@@ -22,6 +22,7 @@
 #include "GameComponents/PlayerHand.hpp"
 #include "UIComponents/Button.hpp"
 #include "Shop/Shop.hpp"
+#include "Shop/ModifierManager.hpp"
 
 #include "../Utils/Utils.hpp"
 
@@ -42,7 +43,8 @@ namespace App
 	private:
 		std::unique_ptr<Core::SDLBackend::Window> m_window;
 		std::unique_ptr<Core::SDLBackend::Renderer> m_renderer;
-
+		
+		std::unique_ptr<Shop::ModifierManager> m_modifierManager;
 		std::unique_ptr<GameComponents::Board> m_scrabbleBoard;
 		std::unique_ptr<GameComponents::PlayerHand> m_playerHand;
 		UIComponents::Button m_button;

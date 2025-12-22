@@ -181,6 +181,8 @@ namespace App
 			if (!m_active)
 				return { {}, 0 };
 
+			m_words.clear();
+
 			const size_t N = m_numTiles;
 			int score = 0;
 
@@ -223,6 +225,8 @@ namespace App
 								s.push_back(c);
 								score += m_letterScores[s].get<int>();
 							}
+							if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
+								m_words.push_back(word);
 						}
 						word.clear();
 						wordIndexes.clear();
@@ -232,6 +236,8 @@ namespace App
 				if (!m_spellChecker.spell(word))
 				{
 					badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+					if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
+						m_words.push_back(word);
 				}
 			}
 
@@ -265,6 +271,8 @@ namespace App
 								s.push_back(c);
 								score += m_letterScores[s].get<int>();
 							}
+							if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
+								m_words.push_back(word);
 						}
 						word.clear();
 						wordIndexes.clear();
@@ -274,6 +282,8 @@ namespace App
 				if (!m_spellChecker.spell(word))
 				{
 					badIndexes.insert(wordIndexes.begin(), wordIndexes.end());
+					if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
+						m_words.push_back(word);
 				}
 			}
 
@@ -334,6 +344,11 @@ namespace App
 		size_t Board::getNumTiles() const
 		{
 			return m_numTiles;
+		}
+
+		const std::vector<std::string>& Board::getWordsOnBoard() const
+		{
+			return m_words;
 		}
 	}
 }

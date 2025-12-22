@@ -10,6 +10,7 @@
 #include "Tile.hpp"
 #include "Board.hpp"
 #include "TileHighlighter.hpp"
+#include "../Shop/ModifierManager.hpp"
 #include "../EventSystem/EventDispatcher.hpp"
 #include "../../Core/SDLBackend/Renderer.hpp"
 #include "../../Core/SDLBackend/Text.hpp"
@@ -25,7 +26,7 @@ namespace App
 		public:
 			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, size_t numTiles, size_t numTilesPerRound);
 
-			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer);
+			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer, const Shop::ModifierManager& modifierManager);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 

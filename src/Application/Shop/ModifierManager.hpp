@@ -29,9 +29,9 @@ namespace App
 		public:
 			ModifierManager();
 
-			int getBonusPoints(const std::vector<std::string>& words, int points);
+			int getBonusPoints(const std::vector<std::string>& words, int points) const;
 
-			std::array<const std::reference_wrapper<ModifierInfo>, 3> getShopOptions() const;
+			void /*std::array<const std::reference_wrapper<ModifierInfo>, 3>*/ getShopOptions() const;
 
 			void selectOption(const std::string& id);
 			 

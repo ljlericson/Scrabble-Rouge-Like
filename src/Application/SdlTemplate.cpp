@@ -99,11 +99,11 @@ namespace App
 		ImGui::NewFrame();
 		this->ImGuiTheme();
 
-		Shop::Shop::Render();
-
 		ImGui::Begin("CONTROLS");
 		if(ImGui::CollapsingHeader("GAME EVENTS"))
 		{
+			if (ImGui::Button("Add 4 word powerup"))
+				m_modifierManager->selectOption("fourLengthWordMultiplyer");
 			if (ImGui::Button("End Round"))
 				m_eventDispatcher.queueEvent(EventType::roundEnd);
 			if (ImGui::Button("Start Round"))
@@ -201,6 +201,8 @@ namespace App
 		ImGui::CreateContext();
 		ImGui_ImplSDL3_InitForSDLRenderer(m_window->getWHand(), m_renderer->getRendHand());
 		ImGui_ImplSDLRenderer3_Init(m_renderer->getRendHand());
+
+		m_modifierManager = std::make_unique<Shop::ModifierManager>();
 	}
 
 	void Application::run()
@@ -221,7 +223,7 @@ namespace App
 			// rendering
 			m_renderer->preRender();
 			m_scrabbleBoard->render(*m_renderer);
-			m_playerHand->render(*m_scrabbleBoard, *m_renderer);
+			m_playerHand->render(*m_scrabbleBoard, *m_renderer, *m_modifierManager);
 			m_button.render(*m_renderer);
 			this->ImGuiRender();
 			Console::cchat.draw();
