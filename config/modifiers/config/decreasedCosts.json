@@ -5,7 +5,7 @@
     "stackable": false,
     "rarity": 1,
     "script":"<NO-SCRIPT>",
-    "modifiers": {
+    "staticModifiers": {
         "globalPriceReduction": 1.3
     }
 }

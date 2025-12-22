@@ -5,7 +5,7 @@
     "rarity": 1,
     "stackable": true,
     "script":"<NO-SCRIPT>",
-    "modifiers": {
+    "staticModifiers": {
         "pointsScoredMultiplier": 1.4,
         "roundStartingPoints": 30
     }

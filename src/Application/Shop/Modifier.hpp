@@ -1,7 +1,8 @@
 #pragma once
 #include <memory>
-#include <vector>
+#include <unordered_map>
 #include <string>
+#include <expected>
 
 #include <sol/sol.hpp>
 
@@ -21,35 +22,28 @@ namespace App
 		class Modifier
 		{
 		public:
-			Modifier(std::string name,
-					std::string description,
-					int globalPriceReduction,
-					int pointsScoreMultiplier,
-					int rounStartingPoints,
-					bool stackable,
-				    std::unique_ptr<LuaScripting::Script> script = nullptr);
+			enum class StaticModifierType
+			{
+				globalPriceReduction,
+				pointsScoreMultiplier,
+				roundStartingPoints
+			};
+		public:
+			Modifier(const std::unordered_map<StaticModifierType, int>& staticModifiers,
+					 bool stackable,
+				     std::unique_ptr<LuaScripting::Script> script = nullptr);
 			
-			int getPoints(const Context& context);
-
-			int getRarity() const;
-
-			int getCost() const;
+			int getBonusRoundPoints(const Context& context);
 
 			int getStartPointsBonus() const;
 
-			bool getStackable() const;
+			static auto stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>;
 
 		private:
 			std::unique_ptr<LuaScripting::Script> m_script;
 
 			// config items
-			std::string m_name;
-			std::string m_description;
-			int m_rarity = 0;
-			int m_cost = 0;
-			int m_globalPriceReduction = 0;
-			int m_pointsScoredMultiplier = 0;
-			int m_roundStartingPoints = 0;
+			std::unordered_map<StaticModifierType, int> m_staticModifiers;
 			bool m_stackable = false;
 		};
 	}

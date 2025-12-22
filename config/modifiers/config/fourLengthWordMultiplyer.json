@@ -5,7 +5,7 @@
     "stackable": true,
     "rarity": 2,
     "script":"./config/scripts/deacreasedCosts.lua",
-    "modifiers": {
-
+    "staticModifiers": {
+        
     }
 }

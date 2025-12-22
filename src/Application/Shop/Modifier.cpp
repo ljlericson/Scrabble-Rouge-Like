@@ -4,18 +4,10 @@ namespace App
 {
 	namespace Shop
 	{
-		Modifier::Modifier(std::string name,
-						std::string description,
-						int globalPriceReduction,
-						int pointsScoreMultiplier,
-						int rounStartingPoints,
+		Modifier::Modifier(const std::unordered_map<StaticModifierType, int>& staticModifiers,
 						bool stackable,
 						std::unique_ptr<LuaScripting::Script> script)
-			: m_name(name),
-			  m_description(description),
-			  m_globalPriceReduction(globalPriceReduction),
-			  m_pointsScoredMultiplier(pointsScoreMultiplier),
-			  m_roundStartingPoints(rounStartingPoints),
+			: m_staticModifiers(staticModifiers),
 			  m_stackable(stackable)
 		{		
 			if (script)
@@ -24,41 +16,45 @@ namespace App
 				m_script = nullptr;
 		}
 
-		int Modifier::getPoints(const Context& context)
+		int Modifier::getBonusRoundPoints(const Context& context)
 		{
 			int scriptBonus = 0;
-			if(m_script)
+			if (m_script)
 			{
 				sol::table contextTable = LuaScripting::Script::getState().create_table();
 				contextTable["event"] = context.event;
 				contextTable["words"] = context.words;
 				auto result = m_script->run(contextTable);
 				if (result.has_value())
-					scriptBonus = result.value()["addScore"];				
+					scriptBonus = result.value()["addScore"];
 			}
-
-			return ((context.points * m_pointsScoredMultiplier) - context.points)
-				+ scriptBonus;
-		}
-
-		int Modifier::getRarity() const
-		{
-			return m_rarity;
-		}
-
-		int Modifier::getCost() const
-		{
-			return m_cost;
+			if (m_staticModifiers.contains(StaticModifierType::pointsScoreMultiplier))
+			{
+				scriptBonus += ((context.points * m_staticModifiers.at(StaticModifierType::pointsScoreMultiplier))
+					- context.points);
+			}
+			return scriptBonus;
 		}
 
 		int Modifier::getStartPointsBonus() const
 		{
-			return m_roundStartingPoints;
+			if (m_staticModifiers.contains(StaticModifierType::roundStartingPoints))
+			{
+				return m_staticModifiers.at(StaticModifierType::roundStartingPoints);
+			}
+			return -1;
 		}
 
-		bool Modifier::getStackable() const
+		auto Modifier::stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>
 		{
-			return m_stackable;
+			if (str == "globalPriceReduction")
+				return StaticModifierType::globalPriceReduction;
+			else if (str == "pointsScoreMultiplier")
+				return StaticModifierType::pointsScoreMultiplier;
+			else if (str == "roundStartingPoints")
+				return StaticModifierType::roundStartingPoints;
+			else
+				return std::unexpected("No enum found for string");
 		}
 	}
 }
