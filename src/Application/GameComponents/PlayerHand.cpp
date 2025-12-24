@@ -4,20 +4,23 @@ namespace App
 {
 	namespace GameComponents
 	{
-		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, size_t numTiles, size_t numTilesPerRound)
+		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, size_t numTiles, size_t numTilesPerRound)
 			: m_highlighter(SDL_Color{ .r = 255, .g = 0, .b = 0, .a = 50 }, numTiles),
 			  m_numTilesPerRound(numTilesPerRound),
 			  mr_renderer(renderer),
 			  mr_eventDispatcher(eventDispatcher),
+			  mr_modifierManager(modifierManager),
 			  m_numTiles(numTiles),
 			  m_scoreText(glm::vec2(Utils::getWindowSize().first - 75.0f, 0.0f), 32, 32, "./assets/font.ttf", SDL_Color(0, 255, 0, 255), "0"),
 			  m_scoreTextOverall(glm::vec2(Utils::getWindowSize().first - 75.0f, 32), 32, 32, "./assets/font.ttf", SDL_Color(255, 0, 0, 255), "0")
 
 		{
+			std::ifstream file("./config/tiles/tileLetters.json");
+			file >> m_vowlsAndCons;
 			eventDispatcher.attach(*this);
 		}
 
-		void PlayerHand::render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer, const Shop::ModifierManager& modifierManager)
+		void PlayerHand::render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer)
 		{
 			for (auto& tileReference : m_activeTiles)
 			{
@@ -32,7 +35,7 @@ namespace App
 					std::tie(m_badWordIndexes, score) = scrabbleBoard.getBadWordIndexesAndScore();
 
 					m_score += score;
-					m_score += modifierManager.getBonusPoints(scrabbleBoard.getWordsOnBoard(), m_score);
+					m_score += mr_modifierManager.getBonusPoints(scrabbleBoard.getWordsOnBoard(), m_score);
 				}
 				else if (result == GameComponents::Tile::PressState::pressed)
 				{
@@ -65,16 +68,46 @@ namespace App
 
 		void PlayerHand::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 		{
+			// why is this a thing in c++????
+			// like no one gives a shit I missed
+			// the initialisation of two ints
+			int numVowls = 0; 
+			int numCons = 0;
 			switch (e)
 			{
 			case EventType::gameStart:
 				m_score = 20;
-				// mr_eventDispatcher.reserveObserverVectorCapacity(m_numTilesPerRound);
+
 				for (size_t i = 0; i <= m_numTilesPerRound; i++)
 				{
-					/*auto [beginIt, endIt] = mr_eventDispatcher.getObserverVectorIterators();
-					size_t distance = std::distance(endIt - i, endIt);*/
-					m_tiles.push_back(std::make_unique<Tile>(mr_renderer, m_numTiles));
+					char c;
+					int chance = Utils::getRandomInt(0, 1);
+					auto vowels = m_vowlsAndCons["vowels"].array();
+					auto cons = m_vowlsAndCons["consonants"].array();
+
+					if (chance == 0 && numVowls < m_numTilesPerRound / 5)
+					{
+						c = m_vowlsAndCons["vowels"].at(Utils::getRandomInt(0, 4)).get<std::string>()[0];
+						++numVowls;
+					}
+					else
+					{
+						c = m_vowlsAndCons["consonants"].at(Utils::getRandomInt(0, 19)).get<std::string>()[0];
+						++numCons;
+					}
+
+					if (chance == 1 && numCons < m_numTilesPerRound - (m_numTilesPerRound / 5))
+					{
+						c = m_vowlsAndCons["consonants"].at(Utils::getRandomInt(0, 19)).get<std::string>()[0];
+						++numCons;
+					}
+					else
+					{
+						c = m_vowlsAndCons["vowels"].at(Utils::getRandomInt(0, 4)).get<std::string>()[0];
+						++numVowls;
+					}
+
+					m_tiles.push_back(std::make_unique<Tile>(mr_renderer, m_numTiles, c));
 					mr_eventDispatcher.attach(*m_tiles.back());
 				}
 				break;

@@ -20,7 +20,7 @@ namespace App
 		};
 		*/
 
-		Button::Button(const Core::SDLBackend::Renderer& renderer, SDL_FRect rect, const char* title, TTF_Font* font)
+		Button::Button(const Core::SDLBackend::Renderer& renderer, SDL_FRect rect, const char* title)
 			: m_tex(Core::AssetManager::textureManager->newTexture("BUTTON", renderer.getRendHand(), "./assets/textures/button.png")),
 			m_texRect(rect)
 		{
@@ -33,7 +33,7 @@ namespace App
 				glm::vec2{ m_texSrcRect.x, m_texSrcRect.y }, 
 				m_texSrcRect.w, 
 				m_texSrcRect.h, 
-				"./assets/font.ttf", 
+				"./assets/font.ttf",
 				SDL_Color(255, 0, 0, 255), 
 				title
 			);

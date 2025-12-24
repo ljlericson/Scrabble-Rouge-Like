@@ -3,8 +3,11 @@
 #include <iostream>
 #include <memory>
 #include <functional>
+#include <fstream>
 #include <algorithm>
+#include <array>
 
+#include <nlohmann/json.hpp>
 
 #include "BasicGameComponent.hpp"
 #include "Tile.hpp"
@@ -24,9 +27,9 @@ namespace App
 		class PlayerHand : public BasicGameComponent
 		{
 		public:
-			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, size_t numTiles, size_t numTilesPerRound);
+			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, size_t numTiles, size_t numTilesPerRound);
 
-			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer, const Shop::ModifierManager& modifierManager);
+			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
@@ -44,8 +47,11 @@ namespace App
 			Core::SDLBackend::Text m_scoreText;
 			Core::SDLBackend::Text m_scoreTextOverall;
 
+			Shop::ModifierManager& mr_modifierManager;
 			const Core::SDLBackend::Renderer& mr_renderer;
 			EventSystem::EventDispatcher& mr_eventDispatcher;
+
+			nlohmann::json m_vowlsAndCons;
 
 			int m_score = 0;
 			size_t m_scoreOverall = 0;

@@ -6,6 +6,6 @@
     "rarity": 1,
     "script":"<NO-SCRIPT>",
     "staticModifiers": {
-        "globalPriceReduction": 1.3
+        "globalPriceReduction": 0.8
     }
 }

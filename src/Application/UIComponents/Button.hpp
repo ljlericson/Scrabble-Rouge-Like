@@ -18,7 +18,7 @@ namespace App
 		{
 		public:
 			Button() = default;
-			Button(const Core::SDLBackend::Renderer& renderer, SDL_FRect rect, const char* title, TTF_Font* font);
+			Button(const Core::SDLBackend::Renderer& renderer, SDL_FRect rect, const char* title);
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 

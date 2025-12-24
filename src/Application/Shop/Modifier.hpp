@@ -35,7 +35,9 @@ namespace App
 			
 			int getBonusRoundPoints(const Context& context) const;
 
-			int getStartPointsBonus() const;
+			int getStaticStartPointsBonus() const;
+
+			int getStaticPriceReduction() const;
 
 			static auto stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>;
 

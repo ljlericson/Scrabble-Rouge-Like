@@ -7,7 +7,7 @@ namespace App
 		Board::Board(const Core::SDLBackend::Renderer& renderer, const Core::SDLBackend::Window& window)
 			: m_spellChecker("./assets/dictionaries/en_AU.aff", "./assets/dictionaries/en_AU.dic")
 		{
-			m_tex = Core::AssetManager::textureManager->newTexture("Board", renderer.getRendHand(), "./assets/textures/board2.png");
+			m_tex = Core::AssetManager::textureManager->newTexture("Board", renderer.getRendHand(), "./assets/textures/board.png");
 			auto [w, h] = Utils::getWindowSize();
 
 			m_texRectShaking.h = static_cast<float>(h);
@@ -17,7 +17,7 @@ namespace App
 
 			m_texRect = m_texRectShaking;
 
-			std::ifstream file("./config/tilePoints/tilePoints.json");
+			std::ifstream file("./config/tiles/tilePoints.json");
 			file >> m_letterScores;
 		}
 

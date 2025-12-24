@@ -31,6 +31,8 @@ namespace App
 
 			int getBonusPoints(const std::vector<std::string>& words, int points) const;
 
+			int getStaticPriceReduction(int points);
+
 			void /*std::array<const std::reference_wrapper<ModifierInfo>, 3>*/ getShopOptions() const;
 
 			void selectOption(const std::string& id);

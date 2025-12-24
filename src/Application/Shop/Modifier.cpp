@@ -30,7 +30,10 @@ namespace App
 				contextTable["points"] = context.points;
 
 				if (auto bonus = m_script->run(contextTable))
+				{
 					bonusPoints += bonus.value().get<int>("addScore");
+				}
+
 			}
 
 			if (m_staticModifiers.contains(StaticModifierType::pointsScoredMultiplier))
@@ -42,13 +45,22 @@ namespace App
 			return bonusPoints;
 		}
 
-		int Modifier::getStartPointsBonus() const
+		int Modifier::getStaticStartPointsBonus() const
 		{
 			if (m_staticModifiers.contains(StaticModifierType::roundStartingPoints))
 			{
 				return m_staticModifiers.at(StaticModifierType::roundStartingPoints);
 			}
-			return -1;
+			return 0;
+		}
+
+		int Modifier::getStaticPriceReduction() const
+		{
+			if (m_staticModifiers.contains(StaticModifierType::globalPriceReduction))
+			{
+				return m_staticModifiers.at(StaticModifierType::globalPriceReduction);
+			}
+			return 1;
 		}
 
 		auto Modifier::stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>

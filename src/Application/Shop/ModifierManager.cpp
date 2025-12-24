@@ -102,6 +102,16 @@ namespace App
 			return bonusPoints;
 		}
 
+		int ModifierManager::getStaticPriceReduction(int points)
+		{
+			int reduced = 0;
+			for (const auto& [key, modifier] : m_modifiers)
+			{
+				reduced -= (points - (points * modifier->getStaticPriceReduction()));
+			}
+			return reduced;
+		}
+
 		void /*std::array<const std::reference_wrapper<ModifierInfo>, 3>*/ ModifierManager::getShopOptions() const
 		{
 

@@ -13,7 +13,7 @@ namespace Core
 
 		void Renderer::preRender()
 		{
-			SDL_SetRenderDrawColor(m_rendHand, 0, 0, 0, 255);
+			SDL_SetRenderDrawColor(m_rendHand, 255, 255, 255, 255);
 			SDL_RenderClear(m_rendHand);
 		}
 

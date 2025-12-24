@@ -14,7 +14,7 @@ return function(context)
     if numFourWords < NumTimesPointsAdded then
         points = points - (50 * NumTimesPointsAdded - numFourWords)
         NumTimesPointsAdded = NumTimesPointsAdded - 1
-    end 
+    end
 
     return {
         addScore = points

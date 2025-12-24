@@ -4,8 +4,8 @@ namespace App
 {
 	namespace GameComponents
 	{
-		Tile::Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles)
-			: m_startPos(0.0f), m_numTilesOnBoard(numTiles), m_char("")
+		Tile::Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles, char tileChar)
+			: m_startPos(0.0f), m_numTilesOnBoard(numTiles), m_char(tileChar)
 		{
 			if (!sm_font)
 				sm_font = TTF_OpenFont("./assets/font.ttf", 128);
@@ -13,7 +13,7 @@ namespace App
 			m_tex = Core::AssetManager::textureManager->newTexture(
 				"Tile",
 				renderer.getRendHand(),
-				"./assets/textures/button.png"
+				"./assets/textures/tile.png"
 			);
 
 			auto [w, h] = Utils::getWindowSize();
@@ -22,21 +22,11 @@ namespace App
 			pos.x = w + 50.0f;
 			pos.y = h + 50.0f;
 			
-
-			//const char* character = const_cast<char*>(&m_char);
-			m_char = { char('A' + Utils::getRandomInt(0, 24)) };
-
-			SDL_Surface* textSurface = TTF_RenderGlyph_Solid(sm_font, m_char.front(), SDL_Color(255, 0, 0, 255));
-			if (!textSurface)
-				std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
-
-			m_textTexture = Core::AssetManager::textureManager->newTexture(
-				std::string("text") + m_char,
-				renderer.getRendHand(),
-				SDL_CreateTextureFromSurface(renderer.getRendHand(), textSurface)
-			);
-
-			SDL_DestroySurface(textSurface);
+			m_texSrcRect.h = 32.0f;
+			m_texSrcRect.w = 32.0f;
+			int index = int(m_char - 'A');
+			m_texSrcRect.x = (index % 16) * 32.0f;
+			m_texSrcRect.y = (index / 16) * 32.0f;
 		}
 
 		void Tile::render(const Core::SDLBackend::Renderer& renderer)
@@ -44,8 +34,7 @@ namespace App
 			m_texRect.x = pos.x;
 			m_texRect.y = pos.y;
 
-			renderer.render(*m_tex, m_texRect);
-			renderer.render(*m_textTexture, m_texRect);
+			renderer.render(*m_tex, m_texRect, &m_texSrcRect);
 		}
 
 		void Tile::glideToStartPos()
@@ -179,24 +168,17 @@ namespace App
 
 		const char Tile::getTileChar() const
 		{
-			return m_char.front();
+			return m_char;
 		}
 
 		void Tile::shuffleChar(const Core::SDLBackend::Renderer& renderer)
 		{
-			m_char = { char('A' + Utils::getRandomInt(0, 24)) };
-
-			SDL_Surface* textSurface = TTF_RenderGlyph_Solid(sm_font, m_char.front(), SDL_Color(255, 0, 0, 255));
-			if (!textSurface)
-				std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
-
-			m_textTexture = Core::AssetManager::textureManager->newTexture(
-				std::string("text") + m_char,
-				renderer.getRendHand(),
-				SDL_CreateTextureFromSurface(renderer.getRendHand(), textSurface)
-			);
-
-			SDL_DestroySurface(textSurface);
+			m_char = char('A' + Utils::getRandomInt(0, 24));
+			m_texSrcRect.h = 32.0f;
+			m_texSrcRect.w = 32.0f;
+			int index = int(m_char - 'A');
+			m_texSrcRect.x = (index % 16) * 32.0f;
+			m_texSrcRect.y = (index / 16) * 32.0f;
 		}
 
 		void Tile::setInactive()

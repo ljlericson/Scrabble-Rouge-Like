@@ -27,7 +27,7 @@ namespace App
 			Tile() = default;
 			~Tile() = default;
 
-			Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles);
+			Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles, char tileChar);
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 
@@ -62,6 +62,7 @@ namespace App
 		private:
 			std::shared_ptr<Core::SDLBackend::Texture> m_tex;
 			SDL_FRect m_texRect;
+			SDL_FRect m_texSrcRect;
 			glm::vec2 m_startPos;
 
 			bool m_ctrPressed = false;
@@ -74,8 +75,7 @@ namespace App
 			size_t m_index = SIZE_MAX;
 			size_t m_numTilesOnBoard = 0;
 
-			std::string m_char;
-			std::shared_ptr<Core::SDLBackend::Texture> m_textTexture;
+			char m_char;
 
 			inline static size_t sm_numTiles = 0;
 			inline static bool sm_tilePressEngaged = false;
