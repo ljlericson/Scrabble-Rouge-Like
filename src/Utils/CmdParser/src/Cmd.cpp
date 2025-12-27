@@ -53,7 +53,7 @@ bool ljl::cmdparser::is(cmdparser::type type)
         return m_isCmd;
 
     bool is_cmd = false;
-    if(m_argv.size() > 1)
+    if(m_argv.size() > 0)
     {
         for(const auto& [cmd, data] : m_cmds)
         {

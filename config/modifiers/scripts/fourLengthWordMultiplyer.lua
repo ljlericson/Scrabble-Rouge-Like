@@ -1,10 +1,10 @@
 WordList = {}
 return function(context)
-    if context.event == "wordPlaced" then
+    if context.event == "wordScored" then
 
         local wordList = {}
         for index, word in ipairs(context.words) do
-            if #word == 4 then
+            if #word == 3 then
                 wordList[index] = word
             end
         end

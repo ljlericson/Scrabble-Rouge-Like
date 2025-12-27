@@ -56,6 +56,7 @@ namespace App
 		public:
 			glm::vec2 pos;
 			int tileSpotIndex = 0;
+			bool addRedTint = false;
 		private:
 			std::shared_ptr<Core::SDLBackend::Texture> m_tex;
 			SDL_FRect m_texRect;

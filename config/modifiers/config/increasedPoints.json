@@ -6,7 +6,7 @@
     "stackable": true,
     "script":"<NO-SCRIPT>",
     "staticModifiers": {
-        "pointsScoredMultiplier": 5,
+        "pointsScoredMultiplier": 1.4,
         "roundStartingPoints": 30
     }
 }

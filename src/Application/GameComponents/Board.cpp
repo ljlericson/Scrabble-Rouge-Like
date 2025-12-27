@@ -212,20 +212,17 @@ namespace App
 					if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
 						m_words.push_back(word);
 
-					if (!m_devMode)
+					for (char c : word)
 					{
-						for (char c : word)
+						int bonusScore = modifierManager.getBonusPoints(c, 0, "charScored");
+						if (bonusScore == 0)
 						{
-							int bonusScore = modifierManager.getBonusPoints(c, 0, "charScored");
-							if (bonusScore == 0)
-							{
-								std::string key(1, c);
-								newScore += m_letterScores.at(key).get<int>();
-							}
-							else
-								newScore += bonusScore;
-							
+							std::string key(1, c);
+							newScore += m_letterScores["tileBasePoints"].at(key).get<int>();
 						}
+						else
+							newScore += bonusScore;
+							
 					}
 				};
 

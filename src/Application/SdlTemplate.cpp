@@ -104,8 +104,8 @@ namespace App
 		ImGui::Begin("CONTROLS");
 		if(ImGui::CollapsingHeader("GAME EVENTS"))
 		{
-			if (ImGui::Button("Add 4 word powerup"))
-				m_modifierManager->selectOption("fourLengthWordMultiplyer");
+			if (ImGui::Button("Populate Shop"))
+				m_shop->populateShop();
 			if (ImGui::Button("Confirm Word"))
 				m_eventDispatcher.queueEvent(EventType::wordConfirmed);
 			if (ImGui::Button("End Game"))
@@ -140,6 +140,7 @@ namespace App
 			{
 				if(input == "scrabbleDevMode")
 				{
+					m_devMode = true;
 					m_eventDispatcher.queueEvent(EventType::enterDevMode);
 					Console::ccout << "DEVMODE ACTIVE" << std::endl;
 					auto [begin, end] = Console::cchat.getMessageIterators();
@@ -160,16 +161,21 @@ namespace App
 		}
 		ImGui::End();
 
-		if(ljl::cmdparser* cmd = Console::cchat.draw())
+		if(m_devMode)
 		{
-			auto& cmdr = *cmd;
-			if (cmdr.is(ljl::cmdparser::type::query))
-				cmdr.respond();
-			else if (cmdr.is(ljl::cmdparser::type::command))
+			if (ljl::cmdparser* cmd = Console::cchat.draw())
 			{
-				if (cmdr["card"])
+				auto& cmdr = *cmd;
+				if (cmdr.is(ljl::cmdparser::type::query))
+					cmdr.respond();
+				else if (cmdr.is(ljl::cmdparser::type::command))
 				{
-					m_modifierManager->selectOption(cmdr.get_value<std::string>("card", "-id"));
+					if (cmdr["mod"])
+						m_modifierManager->selectOption(cmdr.get_value<std::string>("mod", "-new"));
+					if (cmdr["listMods"])
+						m_modifierManager->listModifiersInChat();
+					if (cmdr["listActiveMods"])
+						m_modifierManager->listActiveModifiersInChat();
 				}
 			}
 		}
@@ -209,9 +215,12 @@ namespace App
 		ImGui_ImplSDLRenderer3_Init(m_renderer->getRendHand());
 
 		m_modifierManager = std::make_unique<Shop::ModifierManager>();
+		m_shop = std::make_unique<Shop::Shop>(m_modifierManager.get());
 		m_scrabbleBoard = std::make_unique<GameComponents::Board>(*m_renderer, *m_window);
 		m_playerHand = std::make_unique<GameComponents::PlayerHand>(m_eventDispatcher, *m_renderer, *m_modifierManager, m_scrabbleBoard->getNumTiles(), 21);
 		m_button = UIComponents::Button(*m_renderer, SDL_FRect{ .x = 1280 - 200, .y = 200, .w = 111.0f, .h = 55.0f }, "Start Game");
+
+		m_backgroundTex = Core::AssetManager::textureManager->newTexture("background", m_renderer->getRendHand(), "./assets/textures/background.png");
 
 		m_eventDispatcher.attach(*m_scrabbleBoard);
 		m_eventDispatcher.attach(m_button);
@@ -227,17 +236,20 @@ namespace App
 			{
 				m_eventDispatcher.queueEvent(EventType::gameStart);
 				m_eventDispatcher.queueEvent(EventType::wordConfirmed);
-				m_button.setButtonText("CRASH");
 			}
 			// custom cullback for imgui
 			m_window->pollEvents(mf_ImGuiEventCallback);
 			m_eventDispatcher.poll(*m_window);
 			// rendering
 			m_renderer->preRender();
+			auto [w, h] = Utils::getWindowSize();
+			m_renderer->render(*m_backgroundTex, SDL_FRect(0.0f, 0.0f, (float)w, (float)h));
 			m_scrabbleBoard->render(*m_renderer);
 			m_playerHand->render(*m_scrabbleBoard, *m_renderer);
 			m_button.render(*m_renderer);
+
 			this->ImGuiRender();
+			m_shop->render();
 			this->ImGuiPostRender();
 			m_renderer->postRender();
 

@@ -44,7 +44,7 @@ namespace App
 
 		private:
 			std::unique_ptr<LuaScripting::Script> m_script;
-
+			mutable std::vector<std::string> m_words;
 			// config items
 			std::unordered_map<StaticModifierType, int> m_staticModifiers;
 			bool m_stackable = false;

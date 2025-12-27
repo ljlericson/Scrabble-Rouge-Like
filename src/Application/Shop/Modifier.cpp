@@ -37,10 +37,11 @@ namespace App
 
 			}
 
-			if (m_staticModifiers.contains(StaticModifierType::pointsScoredMultiplier))
+			if (m_staticModifiers.contains(StaticModifierType::pointsScoredMultiplier) && context.ch == ' ')
 			{
-				bonusPoints += (context.points * m_staticModifiers.at(StaticModifierType::pointsScoredMultiplier)) -
-								context.points;
+				bonusPoints += ((context.points * m_staticModifiers.at(StaticModifierType::pointsScoredMultiplier)) -
+								context.points) * static_cast<int>(context.words.size() - m_words.size());
+				m_words = context.words;
 			}
 
 			return bonusPoints;

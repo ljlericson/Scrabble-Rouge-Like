@@ -11,6 +11,7 @@
 
 #include "BasicGameComponent.hpp"
 #include "Tile.hpp"
+#include "Recycler.hpp"
 #include "Board.hpp"
 #include "TileHighlighter.hpp"
 #include "../Shop/ModifierManager.hpp"
@@ -41,7 +42,6 @@ namespace App
 			std::vector<std::reference_wrapper<std::unique_ptr<Tile>>> m_inactiveTiles;
 			std::array<bool, 7> m_tileSlots;
 			
-
 			GameComponents::TileHighlighter m_highlighter;
 			std::vector<size_t> m_badWordIndexes;
 			std::string m_scoreTextStr;
@@ -52,14 +52,19 @@ namespace App
 			const Core::SDLBackend::Renderer& mr_renderer;
 			EventSystem::EventDispatcher& mr_eventDispatcher;
 
+			Recycler m_tileRecycler;
+			bool m_hideRecycler = false;
+
 			nlohmann::json m_vowlsAndCons;
 
 			int m_score = 0;
 			size_t m_scoreOverall = 0;
 			uint8_t m_numRounds = 0;
+			
+			bool m_devMode = false;
 
 			// config items
-			size_t m_numTilesPerRound = 0;
+			size_t m_numTilesTotal = 0;
 			const size_t m_numTiles = 0;
 		};
 	}

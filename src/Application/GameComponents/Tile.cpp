@@ -35,6 +35,8 @@ namespace App
 			m_texRect.y = pos.y;
 
 			renderer.render(*m_tex, m_texRect, &m_texSrcRect);
+			if(addRedTint)
+				renderer.render(m_texRect, SDL_Color(255, 0, 0, 150), Core::SDLBackend::Renderer::DrawType::fill);
 		}
 
 		void Tile::glideToStartPos()

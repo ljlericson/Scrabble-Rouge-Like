@@ -43,15 +43,19 @@ namespace App
 	private:
 		std::unique_ptr<Core::SDLBackend::Window> m_window;
 		std::unique_ptr<Core::SDLBackend::Renderer> m_renderer;
-		
+
+		std::unique_ptr<Shop::Shop> m_shop;
 		std::unique_ptr<Shop::ModifierManager> m_modifierManager;
 		std::unique_ptr<GameComponents::Board> m_scrabbleBoard;
 		std::unique_ptr<GameComponents::PlayerHand> m_playerHand;
 		UIComponents::Button m_button;
 
+		std::shared_ptr<Core::SDLBackend::Texture> m_backgroundTex;
+
 		std::function<void(SDL_Event* e)> mf_ImGuiEventCallback;
 		EventSystem::EventDispatcher m_eventDispatcher;
 
 		bool m_fullscreen = false;
+		bool m_devMode = false;
 	};
 }

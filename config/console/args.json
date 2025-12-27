@@ -1,14 +1,20 @@
 {
     "queries": {
         "--version": "Command version 1.0.0\n",
-        "--help": "powerup-add : add a powerup\n"
+        "--help": "command mod : add a powerup\n"
     },
     "commands": {
-        "card": {
+        "mod": {
             "passtype":"explicit",
             "args":{
-                "-id":"string"
+                "-new":"string"
             }
+        },
+        "listMods":{
+
+        },
+        "listActiveMods":{
+
         }
     },
     "default":"ERROR: Invalid command, please use \"--Help\" for a list of commands"
