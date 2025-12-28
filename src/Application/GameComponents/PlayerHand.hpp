@@ -28,13 +28,13 @@ namespace App
 		class PlayerHand : public BasicGameComponent
 		{
 		public:
-			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, size_t numTiles, size_t numTilesPerRound);
+			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, int numTiles, int numTilesPerGame);
 
 			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
-			size_t getNumTilesPerRound() const;
+			int getNumTilesLeft() const;
 
 		private:
 			// list of all tiles within the game
@@ -75,9 +75,9 @@ namespace App
 			// CONFIG ITEMS
 
 			// num tiles total for the entire game
-			size_t m_numTilesTotal = 0;
+			int m_numTilesLeft = 0;
 			// num tiles lengthwise across the board
-			const size_t m_numTiles = 0;
+			const int m_numTiles = 0;
 		};
 	}
 }

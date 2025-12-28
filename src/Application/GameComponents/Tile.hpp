@@ -27,7 +27,7 @@ namespace App
 			Tile() = default;
 			~Tile() = default;
 
-			Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles, char tileChar);
+			Tile(const Core::SDLBackend::Renderer& renderer, int numTiles, char tileChar);
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 
@@ -71,11 +71,10 @@ namespace App
 			bool m_tileActive = true;
 
 			size_t m_index = SIZE_MAX;
-			size_t m_numTilesOnBoard = 0;
+			const int m_numTilesLengthWase = 0;
 
 			char m_char;
 
-			inline static size_t sm_numTiles = 0;
 			inline static bool sm_tilePressEngaged = false;
 			inline static TTF_Font* sm_font = nullptr;
 		};

@@ -8,7 +8,7 @@ namespace App
 		{
 			namespace fs = std::filesystem;
 
-			std::string path = "./config/modifiers/config/"; // Path to the directory (e.g., current directory)
+			std::string path = "./config/modifiers/config/";
 			try
 			{
 				for (const auto& entry : fs::directory_iterator(path))
@@ -93,12 +93,12 @@ namespace App
 			}
 		}
 
-		int ModifierManager::getBonusPoints(const std::vector<std::string>& words, int points, const char* event) const
+		int ModifierManager::getBonusPoints(const std::vector<std::string>& words, int points, const char* event, const int numRemainingTiles) const
 		{
 			int bonusPoints = 0;
 			for (const auto& [key, modifier] : m_modifiers)
 			{
-				bonusPoints += modifier->getBonusRoundPoints({ .event = event, .words = words, .points = points, .ch = ' ' });
+				bonusPoints += modifier->getBonusRoundPoints({ .event = event, .words = words, .points = points, .ch = ' ', .numRemainingTiles = numRemainingTiles});
 			}
 			return bonusPoints;
 		}
@@ -187,7 +187,7 @@ namespace App
 				{
 					for (const auto& [key, val] : modifierInfo.json["staticModifiers"].items())
 					{
-						auto result = Modifier::stringToStaticModifer(key);
+						auto result = Modifier::stringToStaticModifier(key);
 						if (result)
 						{
 							staticModifierInfo.insert(std::pair{

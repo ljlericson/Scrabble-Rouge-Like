@@ -4,9 +4,9 @@ namespace App
 {
 	namespace GameComponents
 	{
-		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, size_t numTiles, size_t numTilesPerRound)
+		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, int numTiles, int numTilesPerGame)
 			: m_highlighter(SDL_Color{ .r = 255, .g = 0, .b = 0, .a = 100 }, numTiles),
-			  m_numTilesTotal(numTilesPerRound),
+			  m_numTilesLeft(numTilesPerGame),
 			  mr_renderer(renderer),
 			  mr_eventDispatcher(eventDispatcher),
 			  mr_modifierManager(modifierManager),
@@ -42,14 +42,14 @@ namespace App
 					// shuffle the character and send it back to the
 					// start pos (to give illusion that it is a new
 					// tile)
-					if (m_numTilesTotal > 0 && m_tileRecycler.inRecycler(*tile))
+					if (m_numTilesLeft > 0 && m_tileRecycler.inRecycler(*tile))
 					{
 						tile->shuffleChar(renderer);
 						auto [w, h] = Utils::getWindowSize();
 						tile->pos.x = w + 50.0f;
 						tile->pos.y = h + 50.0f;
 						tile->addRedTint = false;
-						--m_numTilesTotal;
+						--m_numTilesLeft;
 					}
 
 					scrabbleBoard.addTileToBoard(tile.get());
@@ -57,7 +57,7 @@ namespace App
 					std::tie(m_badWordIndexes, score) = scrabbleBoard.getBadWordIndexesAndScore(mr_modifierManager);
 
 					m_score += score;
-					m_score += mr_modifierManager.getBonusPoints(scrabbleBoard.getWordsOnBoard(), score, "wordScored");
+					m_score += mr_modifierManager.getBonusPoints(scrabbleBoard.getWordsOnBoard(), score, "wordScored", m_numTilesLeft);
 					m_hideRecyclerAnimation = true;
 				}
 				else if (result == GameComponents::Tile::PressState::pressed)
@@ -118,7 +118,7 @@ namespace App
 			case EventType::gameStart:
 				m_gameRunning = true;
 
-				for (size_t i = 0; i < m_numTilesTotal; i++)
+				for (size_t i = 0; i < m_numTilesLeft; i++)
 				{
 					m_tileRecycler.hide();
 					char c;
@@ -176,7 +176,7 @@ namespace App
 					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					return;
 				}
-				if (m_inactiveTiles.size() == m_numTilesTotal)
+				if (m_inactiveTiles.size() == m_numTilesLeft)
 				{
 					Console::ccout << "NO MORE TILES" << std::endl;
 					auto [begin, end] = Console::cchat.getMessageIterators();
@@ -204,7 +204,7 @@ namespace App
 					if (slotIt == m_tileSlots.end())
 						break;
 
-					if (m_activeTiles.size() >= m_numTilesTotal)
+					if (m_activeTiles.size() >= m_tiles.size())
 						break;
 
 					if (nextTileIndex >= m_tiles.size())
@@ -222,6 +222,7 @@ namespace App
 					pos.x = static_cast<float>(Utils::getWindowSize().first) - (64.0f + slotIndex * 55.0f);
 
 					tile->glideToStartPos();
+					--m_numTilesLeft;
 				}
 				m_numRounds++;
 
@@ -269,9 +270,9 @@ namespace App
 			}
 		}
 
-		size_t PlayerHand::getNumTilesPerRound() const
+		int PlayerHand::getNumTilesLeft() const
 		{
-			return m_numTilesTotal;
+			return m_numTilesLeft;
 		}
 	}
 }

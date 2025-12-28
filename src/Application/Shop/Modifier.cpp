@@ -29,6 +29,7 @@ namespace App
 				contextTable["words"] = sol::as_table(context.words);
 				contextTable["points"] = context.points;
 				contextTable["char"] = context.ch;
+				contextTable["numRemainingTiles"] = context.numRemainingTiles;
 
 				if (auto bonus = m_script->run(contextTable))
 				{
@@ -65,7 +66,7 @@ namespace App
 			return 1;
 		}
 
-		auto Modifier::stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>
+		auto Modifier::stringToStaticModifier(const std::string& str) -> std::expected<StaticModifierType, std::string>
 		{
 			if (str == "globalPriceReduction")
 				return StaticModifierType::globalPriceReduction;

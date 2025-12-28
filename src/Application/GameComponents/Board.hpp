@@ -49,7 +49,7 @@ namespace App
 
 			size_t getSnapTileIndex(glm::vec2 pos);
 
-			size_t getNumTiles() const;
+			int getNumTiles() const;
 			
 			const std::vector<std::string>& getWordsOnBoard() const;
 
@@ -72,7 +72,7 @@ namespace App
 			bool m_active = true;
 
 			// config items
-			size_t m_numTiles = 15; // number of tiles lengthwise |--->|
+			int m_numTiles = 15; // number of tiles lengthwise |--->|
 		};
 	}
 }

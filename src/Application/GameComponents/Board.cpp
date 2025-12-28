@@ -334,7 +334,7 @@ namespace App
 			return index;
 		}
 
-		size_t Board::getNumTiles() const
+		int Board::getNumTiles() const
 		{
 			return m_numTiles;
 		}

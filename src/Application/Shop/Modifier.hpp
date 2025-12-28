@@ -18,6 +18,7 @@ namespace App
 			std::vector<std::string> words;
 			int points;
 			char ch;
+			const int numRemainingTiles;
 		};
 
 		class Modifier
@@ -40,7 +41,7 @@ namespace App
 
 			int getStaticPriceReduction() const;
 
-			static auto stringToStaticModifer(const std::string& str) -> std::expected<StaticModifierType, std::string>;
+			static auto stringToStaticModifier(const std::string& str) -> std::expected<StaticModifierType, std::string>;
 
 		private:
 			std::unique_ptr<LuaScripting::Script> m_script;

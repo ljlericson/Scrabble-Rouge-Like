@@ -134,6 +134,8 @@ namespace App
 		}
 		if (ImGui::CollapsingHeader("Dev Mode"))
 		{
+			ImGui::Text("Number of tiles left: %d", m_playerHand->getNumTilesLeft());
+
 			std::string input;
 
 			if (ImGui::InputText("Password", &input, ImGuiInputTextFlags_EnterReturnsTrue))

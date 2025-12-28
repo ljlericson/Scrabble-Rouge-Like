@@ -4,8 +4,8 @@ namespace App
 {
 	namespace GameComponents
 	{
-		Tile::Tile(const Core::SDLBackend::Renderer& renderer, size_t numTiles, char tileChar)
-			: m_startPos(0.0f), m_numTilesOnBoard(numTiles), m_char(tileChar)
+		Tile::Tile(const Core::SDLBackend::Renderer& renderer, int numTiles, char tileChar)
+			: m_startPos(0.0f), m_numTilesLengthWase(numTiles), m_char(tileChar)
 		{
 			if (!sm_font)
 				sm_font = TTF_OpenFont("./assets/font.ttf", 128);
@@ -61,10 +61,10 @@ namespace App
 			}
 
 			auto [w, h] = Utils::getWindowSize();
-			const float tileSize = h / static_cast<float>(m_numTilesOnBoard);
+			const float tileSize = h / static_cast<float>(m_numTilesLengthWase);
 
-			const size_t tileY = m_index / m_numTilesOnBoard;
-			const size_t tileX = m_index % m_numTilesOnBoard;
+			const size_t tileY = m_index / m_numTilesLengthWase;
+			const size_t tileX = m_index % m_numTilesLengthWase;
 
 			pos.x = tileX * tileSize;
 			pos.y = tileY * tileSize;
