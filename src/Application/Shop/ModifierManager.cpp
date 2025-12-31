@@ -121,7 +121,7 @@ namespace App
 				auto bonusPoints = modifier->getBonusRoundPoints({ .event = event, .words = words, .points = points, .ch = ' ', .numRemainingTiles = numRemainingTiles, .wordDelta = wordDelta });
 				add += bonusPoints.addScore;
 				addMult += bonusPoints.addMult;
-				mulMult += bonusPoints.mulMult;
+				mulMult *= bonusPoints.mulMult;
 			}
 
 			float result = (points + add) * (1.0f + addMult) * mulMult;
@@ -132,7 +132,7 @@ namespace App
 		{
 			int add = 0;
 			float addMult = 0;
-			float mulMult = 1;
+			float mulMult = 0;
 
 			for (const auto& [key, modifier] : m_modifiers)
 			{
@@ -143,7 +143,7 @@ namespace App
 			}
 
 			float result = (points + add) * (1.0f + addMult) * mulMult;
-			return static_cast<int>(std::round(result - points));
+			return result == points ? 0 : static_cast<int>(std::round(result));
 		}
 
 

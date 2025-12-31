@@ -18,7 +18,8 @@ namespace App
 			m_texRect = m_texRectShaking;
 
 			std::ifstream file("./config/tiles/tilePoints.json");
-			file >> m_letterScores;
+			file >> mj_letterScores;
+			file.close();
 		}
 
 		void Board::render(const Core::SDLBackend::Renderer& renderer)
@@ -117,8 +118,8 @@ namespace App
 
 			const size_t index = static_cast<size_t>(tileY) * m_numTiles + tileX;
 
-			// --- reject if already occupied ---
-			for (const Tile* t : m_tiles)
+			// replace tile if tile already there
+			/*for (const Tile* t : m_tiles)
 			{
 				if (t->getIndex() == index)
 				{
@@ -127,6 +128,35 @@ namespace App
 						m_tiles.erase(it);
 
 					tile->snapToTile(SIZE_MAX);
+					return;
+				}
+			}*/
+			for (Tile* t : m_tiles)
+			{
+				if (t->getIndex() == index)
+				{
+					if (t == tile)
+					{
+						tile->snapToTile(SIZE_MAX);
+
+						auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+						if (it != m_tiles.end())
+							m_tiles.erase(it);
+
+						return;
+					}
+
+					t->snapToTile(SIZE_MAX);
+
+					auto it = std::find(m_tiles.begin(), m_tiles.end(), t);
+					if (it != m_tiles.end())
+						m_tiles.erase(it);
+
+					tile->snapToTile(index);
+					auto it2 = std::find(m_tiles.begin(), m_tiles.end(), tile);
+					if (it2 == m_tiles.end())
+						m_tiles.push_back(tile);
+
 					return;
 				}
 			}
@@ -167,16 +197,21 @@ namespace App
 			}
 			else if (!hasAdjacent)
 			{
+				auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+				if (it != m_tiles.end())
+					m_tiles.erase(it);
+
 				tile->snapToTile(SIZE_MAX);
 				return;
 			}
 
-			// --- success ---
 			tile->snapToTile(index);
-			m_tiles.push_back(tile);
+			auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+			if (it == m_tiles.end())
+				m_tiles.push_back(tile);
 		}
 
-		std::pair<std::vector<size_t>, int> Board::getBadWordIndexesAndScore(const Shop::ModifierManager& modifierManager)
+		std::vector<size_t> Board::validateWords()
 		{
 			if (!m_active)
 				return { {}, 0 };
@@ -196,8 +231,7 @@ namespace App
 
 			std::unordered_set<size_t> badIndexes;
 
-			auto processWord = [&](const std::string& word,
-				const std::vector<size_t>& indexes)
+			auto processWord = [&](const std::string& word, const std::vector<size_t>& indexes)
 				{
 					if (word.length() < 2)
 						return;
@@ -209,21 +243,10 @@ namespace App
 					}
 
 					// Valid word
-					if (std::find(m_words.begin(), m_words.end(), word) == m_words.end())
-						m_words.push_back(word);
-
-					for (char c : word)
+					if (std::find(m_words.begin(), m_words.end(), word) == m_words.end() &&
+						std::find(m_allWords.begin(), m_allWords.end(), word) == m_allWords.end())
 					{
-						std::string key(1, c);
-						int charScore = m_letterScores["tileBasePoints"].at(key).get<int>();
-						int bonusScore = modifierManager.getBonusPoints(c, charScore, "charScored");
-						if (bonusScore == 0)
-						{
-							newScore += charScore;
-						}
-						else
-							newScore += bonusScore;
-							
+						m_words.push_back(word);
 					}
 				};
 
@@ -289,10 +312,36 @@ namespace App
 			int delta = newScore - m_score;
 			m_score = newScore;
 
-			return {
-				std::vector<size_t>(badIndexes.begin(), badIndexes.end()),
-				delta
-			};
+			return std::vector<size_t>(badIndexes.begin(), badIndexes.end());
+		}
+
+		int Board::getBaseScore(const Shop::ModifierManager& modifierManager)
+		{
+			int baseScore = 0;
+			for (const std::string& word : m_words)
+			{
+				for (char c : word)
+				{
+					std::string key(1, c);
+					int charScore = mj_letterScores["tileBasePoints"].at(key).get<int>();
+					int bonusScore = modifierManager.getBonusPoints(c, charScore, "charScored");
+					if (bonusScore == 0)
+					{
+						baseScore += charScore;
+					}
+					else
+						baseScore += bonusScore;
+				}
+
+				m_allWords.push_back(word);
+			}
+
+			return baseScore;
+		}
+
+		void Board::clearMWords()
+		{
+			m_words.clear();
 		}
 
 		size_t Board::getSnapTileIndex(glm::vec2 pos)

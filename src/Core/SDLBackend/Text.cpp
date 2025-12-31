@@ -63,7 +63,7 @@ namespace Core
 		{
 			if (m_reloadNeeded)
 			{
-				SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, m_text.c_str(), m_text.length(), m_col);
+				SDL_Surface* textSurface = TTF_RenderText_Blended(m_font, m_text.c_str(), m_text.length(), m_col);
 				if (!textSurface)
 					std::cout << "TEXT ERR: " << SDL_GetError() << '\n';
 
@@ -113,7 +113,7 @@ namespace Core
 			return m_col;
 		}
 
-		const std::string& Text::getText() const
+		std::string Text::getText() const
 		{
 			return m_text;
 		}

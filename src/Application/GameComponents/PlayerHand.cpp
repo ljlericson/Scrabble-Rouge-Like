@@ -4,16 +4,18 @@ namespace App
 {
 	namespace GameComponents
 	{
-		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, int numTiles, int numTilesPerGame)
-			: m_highlighter(SDL_Color{ .r = 255, .g = 0, .b = 0, .a = 100 }, numTiles),
+		PlayerHand::PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, Board& board, int numTiles, int numTilesPerGame)
+			: m_highlighter(SDL_Color{ .r = 0, .g = 0, .b = 255, .a = 100 }, numTiles),
 			  m_numTilesLeft(numTilesPerGame),
 			  m_numTilesTotal(numTilesPerGame),
 			  mr_renderer(renderer),
 			  mr_eventDispatcher(eventDispatcher),
 			  mr_modifierManager(modifierManager),
+			  mr_board(board),
 			  m_numTiles(numTiles),
-			  m_scoreText(glm::vec2(Utils::getWindowSize().first - 75.0f, 0.0f), 32, 32, "./assets/font.ttf", SDL_Color(0, 255, 0, 255), "0"),
-			  m_scoreTextOverall(glm::vec2(Utils::getWindowSize().first - 75.0f, 32), 32, 32, "./assets/font.ttf", SDL_Color(255, 0, 0, 255), "0"),
+			  m_scoreText(glm::vec2(Utils::getWindowSize().first - 10.0f, 0.0f), 20, 20, "./assets/font.ttf", SDL_Color(0, 255, 0, 255), "Points: "),
+			  m_tilesLeftText(glm::vec2(Utils::getWindowSize().first - 10.0f, 20.0f), 20, 20, "./assets/font.ttf", SDL_Color(255, 0, 0, 255), "Number of Tiles: "),
+			  m_targetScoreText(glm::vec2(Utils::getWindowSize().first - 10.0f, 40.0f), 20, 20, "./assets/font.ttf", SDL_Color(235, 201, 52, 255), "Target Points: "),
 			  m_tileSlots({false, false, false, false, false, false, false}),
 			  m_tileRecycler(renderer)
 
@@ -24,7 +26,7 @@ namespace App
 			eventDispatcher.attach(*this);
 		}
 
-		void PlayerHand::render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer)
+		void PlayerHand::render(const Core::SDLBackend::Renderer& renderer)
 		{
 			// only render tile recycler when the game is running
 			if(m_gameRunning)
@@ -56,20 +58,30 @@ namespace App
 						m_nextTileIndex++;
 					}
 
-					scrabbleBoard.addTileToBoard(tile.get());
-					int score;
-					std::tie(m_badWordIndexes, score) = scrabbleBoard.getBadWordIndexesAndScore(mr_modifierManager);
+					mr_board.addTileToBoard(tile.get());
+					m_badWordIndexes = mr_board.validateWords();
 
-					const auto& wordsOnBoard = scrabbleBoard.getWordsOnBoard();
-
-					m_score += score;
-					m_score += mr_modifierManager.getBonusPoints(wordsOnBoard, score, "wordScored", m_numTilesLeft, static_cast<int>(wordsOnBoard.size()) - m_numPreviousWords);
+					const auto& wordsOnBoard = mr_board.getWordsOnBoard();
 
 					m_hideRecyclerAnimation = true;
 					m_numPreviousWords = static_cast<int>(wordsOnBoard.size());
 				}
 				else if (result == GameComponents::Tile::PressState::pressed)
 				{
+					if(tile.get() != m_activeTiles.back().get().get())
+					{
+						auto it = std::find_if(m_activeTiles.begin(), m_activeTiles.end(), [&](const auto& t)
+						{
+							return t.get().get() == m_activeTiles[i].get().get();
+						});
+
+						if (it != m_activeTiles.end())
+						{
+							std::rotate(it, it + 1, m_activeTiles.end());
+							i = 0; // sneaky lil trick to avoid flickering
+						}
+					}
+
 					m_hideRecyclerAnimation = false;
 
 					if (m_tileRecycler.inRecycler(*tile))
@@ -80,12 +92,12 @@ namespace App
 					// render the highlighter that shows where the tile
 					// is going to go on the board
 					auto [w, h] = Utils::getWindowSize();
-					const float numTiles = static_cast<float>(scrabbleBoard.getNumTiles());
+					const float numTiles = static_cast<float>(mr_board.getNumTiles());
 					const float tileSize = h / static_cast<float>(numTiles);
 
 					// continuity correction for snapping in the middle of
 					// the tile as opposed to the left top corner
-					size_t tileIndex = scrabbleBoard.getSnapTileIndex({
+					size_t tileIndex = mr_board.getSnapTileIndex({
 						tile->pos.x + ((h / numTiles / 2.0f)),
 						tile->pos.y + ((h / numTiles / 2.0f))
 						});
@@ -107,13 +119,14 @@ namespace App
 			for (auto& tileReference : m_inactiveTiles) tileReference.get()->render(renderer);
 			// red tint rendering for misspelled words on the board
 			for (size_t badTileIndex : m_badWordIndexes) m_highlighter.render(renderer, badTileIndex);
-			
-			// update the temp score text renderering
-			m_scoreText.setText(std::to_string(m_score));
-
 
 			m_scoreText.render(renderer);
-			m_scoreTextOverall.render(renderer);
+
+			m_tilesLeftText.setText("Number of Tiles: ");
+			m_tilesLeftText.setText(m_tilesLeftText.getText().append(std::to_string(m_tiles.size() - m_nextTileIndex)));
+			m_tilesLeftText.render(renderer);
+
+			m_targetScoreText.render(renderer);
 		}
 
 		void PlayerHand::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
@@ -122,6 +135,14 @@ namespace App
 			{
 			case EventType::gameStart:
 				m_gameRunning = true;
+
+				// local scope for switch block
+				{
+					std::string text = m_targetScoreText.getText();
+					text.append(std::to_string(m_numGames * 30));
+					m_targetScoreText.setText("Target Points: ");
+					m_targetScoreText.setText(text);
+				}
 
 				for (size_t i = 0; i < m_numTilesLeft; i++)
 				{
@@ -161,6 +182,8 @@ namespace App
 				m_numRounds = 0;
 				m_numTilesLeft = m_numTilesTotal;
 				m_nextTileIndex = 0;
+				++m_numGames;			
+
 				m_activeTiles.clear();
 				m_inactiveTiles.clear();
 				m_tiles.clear();
@@ -169,10 +192,6 @@ namespace App
 				break; // ~ gameEnd
 
 			case EventType::wordConfirmed: // ----------------
-
-				m_scoreOverall += m_score;
-				m_scoreTextOverall.setText(std::to_string(m_scoreOverall));
-				m_score = 0;
 
 				if (!m_devMode && m_badWordIndexes.size() > 0)
 				{
@@ -183,15 +202,20 @@ namespace App
 					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
 					return;
 				}
-				if (m_inactiveTiles.size() == m_numTilesLeft)
+
+				// avoid skipping init of vars
+
 				{
-					Console::ccout << "NO MORE TILES" << std::endl;
-					auto [begin, end] = Console::cchat.getMessageIterators();
-					size_t elem = std::distance(begin, end) - 1;
-					Console::Message& mes = Console::cchat.getMessage(elem);
-					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
-					break;
+					int baseScore = mr_board.getBaseScore(mr_modifierManager);
+					const auto& wordsOnBoard = mr_board.getWordsOnBoard();
+					m_score += baseScore;
+					m_score += mr_modifierManager.getBonusPoints(wordsOnBoard, baseScore, "wordScored", m_numTilesLeft, static_cast<int>(wordsOnBoard.size()) - m_numPreviousWords);
+
+					mr_board.clearMWords();
 				}
+
+				m_scoreText.setText("Points: ");
+				m_scoreText.setText(m_scoreText.getText().append(std::to_string(m_score)));
 
 				for (int i = (int)m_activeTiles.size() - 1; i >= 0; --i)
 				{

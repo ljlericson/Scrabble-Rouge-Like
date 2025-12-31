@@ -38,7 +38,7 @@ namespace Core
 
 			SDL_Color getTextColor() const;
 
-			const std::string& getText() const;
+			std::string getText() const;
 
 		public:
 			glm::vec2 pos;

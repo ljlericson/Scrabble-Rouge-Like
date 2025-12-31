@@ -6,6 +6,6 @@
     "rarity": 2,
     "script":"./config/modifiers/scripts/fourLengthWordMultiplyer.lua",
     "staticModifiers": {
-        "pointsScoredMultiplier": 2
+        
     }
 }

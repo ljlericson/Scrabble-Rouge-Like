@@ -2,8 +2,11 @@
   "bonusScoreIndexes": {
     "trippleWord": [
       0, 7, 14,
-      105, 119
-
+      105, 119,
+      210, 217, 224
+    ],
+    "doubleWord": [
+      
     ]
   },
   "tileBasePoints": {

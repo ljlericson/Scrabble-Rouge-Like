@@ -238,7 +238,7 @@ namespace App
 		m_modifierManager = std::make_unique<Shop::ModifierManager>();
 		m_shop = std::make_unique<Shop::Shop>(m_modifierManager.get());
 		m_scrabbleBoard = std::make_unique<GameComponents::Board>(*m_renderer, *m_window);
-		m_playerHand = std::make_unique<GameComponents::PlayerHand>(m_eventDispatcher, *m_renderer, *m_modifierManager, m_scrabbleBoard->getNumTiles(), 21);
+		m_playerHand = std::make_unique<GameComponents::PlayerHand>(m_eventDispatcher, *m_renderer, *m_modifierManager, *m_scrabbleBoard, m_scrabbleBoard->getNumTiles(), 21);
 		m_button = UIComponents::Button(*m_renderer, SDL_FRect{ .x = 1280 - 200, .y = 200, .w = 111.0f, .h = 55.0f }, "Start Game");
 
 		m_backgroundTex = Core::AssetManager::textureManager->newTexture("background", m_renderer->getRendHand(), "./assets/textures/background.png");
@@ -290,7 +290,7 @@ namespace App
 				m_renderer->render(*m_backgroundTex, SDL_FRect(0.0f, 0.0f, (float)Utils::getWindowSize().first, (float)Utils::getWindowSize().second));
 				// game components
 				m_scrabbleBoard->render(*m_renderer);
-				m_playerHand->render(*m_scrabbleBoard, *m_renderer);
+				m_playerHand->render(*m_renderer);
 				m_button.render(*m_renderer);
 
 				this->ImGuiPreRender();

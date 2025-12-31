@@ -10,12 +10,9 @@
                 "-new":"string"
             }
         },
-        "listMods":{
-
-        },
-        "listActiveMods":{
-
-        }
+        "listMods":{},
+        "listActiveMods":{},
+        "stopTileChecking": {}
     },
     "default":"ERROR: Invalid command, please use \"--Help\" for a list of commands"
 }

@@ -45,7 +45,12 @@ namespace App
 
 			void addTileToBoard(Tile* tile);
 
-			std::pair<std::vector<size_t>, int> getBadWordIndexesAndScore(const Shop::ModifierManager& modifierManager);
+			// returns a vector of bad indexes for tile highlighting
+			std::vector<size_t> validateWords();
+
+			int getBaseScore(const Shop::ModifierManager& modifierManager);
+
+			void clearMWords();
 
 			size_t getSnapTileIndex(glm::vec2 pos);
 
@@ -57,6 +62,8 @@ namespace App
 			// tiles
 			std::vector<Tile*> m_tiles;
 			std::vector<std::string> m_words;
+			std::vector<std::string> m_allWords;
+
 			// board renderering
 			std::shared_ptr<Core::SDLBackend::Texture> m_emptyTiles = nullptr;
 			std::shared_ptr<Core::SDLBackend::Texture> m_tex = nullptr;
@@ -64,7 +71,8 @@ namespace App
 			SDL_FRect m_texRectShaking;
 
 			Hunspell m_spellChecker;
-			nlohmann::json m_letterScores;
+			// mj for memeber json
+			nlohmann::json mj_letterScores;
 
 			int m_score = 0;
 			

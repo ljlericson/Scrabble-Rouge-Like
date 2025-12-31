@@ -28,9 +28,9 @@ namespace App
 		class PlayerHand : public BasicGameComponent
 		{
 		public:
-			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, int numTiles, int numTilesPerGame);
+			PlayerHand(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, Board& board, int numTiles, int numTilesPerGame);
 
-			void render(Board& scrabbleBoard, const Core::SDLBackend::Renderer& renderer);
+			void render(const Core::SDLBackend::Renderer& renderer);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
@@ -51,10 +51,11 @@ namespace App
 			// tile highlighter for both 
 			GameComponents::TileHighlighter m_highlighter;
 			std::vector<size_t> m_badWordIndexes;
-			std::string m_scoreTextStr;
 			Core::SDLBackend::Text m_scoreText;
-			Core::SDLBackend::Text m_scoreTextOverall;
+			Core::SDLBackend::Text m_tilesLeftText;
+			Core::SDLBackend::Text m_targetScoreText;
 
+			Board& mr_board;
 			Shop::ModifierManager& mr_modifierManager;
 			const Core::SDLBackend::Renderer& mr_renderer;
 			EventSystem::EventDispatcher& mr_eventDispatcher;
@@ -67,7 +68,6 @@ namespace App
 			nlohmann::json m_vowelsAndCons;
 
 			int m_score = 0;
-			size_t m_scoreOverall = 0;
 			uint8_t m_numRounds = 0;
 			int m_nextTileIndex = 0;
 			int m_numPreviousWords = 0;
@@ -80,6 +80,8 @@ namespace App
 			const int m_numTiles = 0;
 			// num tiles across the entire game
 			const int m_numTilesTotal;
+
+			int m_numGames = 1;
 		};
 	}
 }

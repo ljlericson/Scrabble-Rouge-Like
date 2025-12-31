@@ -1,19 +1,17 @@
-WordList = {}
 return function(context)
     if context.event == "wordScored" then
 
-        local wordList = {}
+        local numWords = 0
         for index, word in ipairs(context.words) do
             if #word == 3 then
-                wordList[index] = word
+                numWords = numWords + 1
             end
         end
 
-        local points = 50 * (#wordList - #WordList)
-        WordList = wordList
+        local points = 50 * numWords
 
         return {
-            addScore = 0,
+            addScore = points,
             mulMultScore = 1,
             addMultScore = 0
         }
