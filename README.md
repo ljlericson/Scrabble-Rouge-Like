@@ -1,4 +1,4 @@
-# SDL2Template
+# Scrabble-Rouge-Like
 
 This repo is a scrabble rouge-like game currently in developement.
 
