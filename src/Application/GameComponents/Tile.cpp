@@ -13,7 +13,7 @@ namespace App
 			m_tex = Core::AssetManager::textureManager->newTexture(
 				"Tile",
 				renderer.getRendHand(),
-				"./assets/textures/tile.png"
+				"./assets/Textures/GameComponents/Tiles.png"
 			);
 
 			auto [w, h] = Utils::getWindowSize();

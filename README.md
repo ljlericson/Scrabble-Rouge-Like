@@ -1,8 +1,15 @@
 # SDL2Template
 
-This repo was supposed to be a private template for me to use but it is actually a scrabble rouge-like game currently in developement.
+This repo is a scrabble rouge-like game currently in developement.
 
----
+## Features
+
+* Tile snapping with spellcheck using the Hunspell Library
+* Working points system and gameplay flow
+* Working Lua scripting and Json config for modifiers that affect points system
+* Dev console (with code stollen from my other project [S3DL-3.0](https://github.com/ljlericson/S3DL-3.0))
+
+![IMAGE1](res/Image.png "Demonstration of features")
 
 ## How To Build
 

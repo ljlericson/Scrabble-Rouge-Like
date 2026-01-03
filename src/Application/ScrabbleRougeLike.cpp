@@ -1,4 +1,4 @@
-#include "SdlTemplate.hpp"
+#include "ScrabbleRougeLike.hpp"
 #include "../Utils/CmdParser/include/ljl/Cmd.hpp"
 
 
