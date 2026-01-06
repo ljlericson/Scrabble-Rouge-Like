@@ -23,10 +23,17 @@ namespace App
 			{
 				ImGui::PushID(static_cast<int>(i));
 				auto& modr = m_modifierInfo[i].get();
-				if(ImGui::CollapsingHeader(modr.id.c_str()))
+				if (ImGui::Button(modr.id.c_str()))
 				{
-					/*ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 255.0f, 255.0f));
-					ImGui::TextWrapped("Name: %s\nDescription: %s\nPrice: %d\n", modr.id.c_str(), modr.description.c_str(), modr.cost);*/
+					mrp_manager->selectOption(modr.id);
+					m_modifierInfo.clear();
+					ImGui::PopID();
+					break;
+				}
+				if(ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 400.0f);
 
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 255.0f, 255.0f));
 					ImGui::TextWrapped("Name: "); ImGui::PopStyleColor(); ImGui::TextWrapped("%s\n\n", modr.id.c_str());
@@ -37,12 +44,9 @@ namespace App
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 255.0f, 255.0f));
 					ImGui::TextWrapped("Price: "); ImGui::PopStyleColor(); ImGui::TextWrapped("%d\n\n", modr.cost);
 
-
-					if (ImGui::Button("Purchase"))
-					{
-						mrp_manager->selectOption(modr.id);
-						m_modifierInfo.clear();
-					}
+					ImGui::PopTextWrapPos();
+					ImGui::EndTooltip();
+					
 				}
 				ImGui::PopID();
 			}

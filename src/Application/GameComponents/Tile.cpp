@@ -95,7 +95,7 @@ namespace App
 				pos.x += (getStartPos().x - pos.x) / 10.0f;
 				pos.y += (getStartPos().y - pos.y) / 10.0f;
 			}
-			if(glm::distance(pos, m_startPos) < 10.0f)
+			if(glm::distance(pos, m_startPos) < 5.0f)
 			{
 				pos = m_startPos;
 				m_glidingToStart = false;
@@ -179,6 +179,11 @@ namespace App
 		void Tile::setInactive()
 		{
 			m_tileActive = false;
+		}
+
+		bool Tile::isTileActive() const
+		{
+			return m_tileActive;
 		}
 
 		TTF_Font* Tile::getStaticFont()

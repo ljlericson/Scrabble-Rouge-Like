@@ -39,19 +39,22 @@ namespace App
 
 			PressState handlePress();
 
-			glm::vec2& getStartPos();
-
-			size_t getIndex() const;
-
-			const char getTileChar() const;
-
 			void shuffleChar(const Core::SDLBackend::Renderer& renderer);
 
 			// playerhand state stuff
 
 			void setInactive();
 
+			glm::vec2& getStartPos();
+
+			size_t getIndex() const;
+
+			bool isTileActive() const;
+
+			const char getTileChar() const;
+
 			static TTF_Font* getStaticFont();
+
 
 		public:
 			glm::vec2 pos;

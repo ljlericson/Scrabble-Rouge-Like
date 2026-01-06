@@ -104,101 +104,14 @@ namespace App
 
 	void Application::ImGuiRenderStartUI()
 	{
-		ImGui::Begin("Game");
-		if (ImGui::Button("Start Game"))
-			m_layer = Layer::Game;
-		ImGui::End();
+
 	}
 
 	void Application::ImGuiRenderGameUI()
 	{
-		ImGui::Begin("CONTROLS");
-		if(ImGui::CollapsingHeader("GAME EVENTS"))
-		{
-			if (ImGui::Button("Populate Shop"))
-				m_shop->populateShop();
-			if (ImGui::Button("Confirm Word"))
-				m_eventDispatcher.queueEvent(EventType::wordConfirmed);
-			if (ImGui::Button("End Game"))
-				m_eventDispatcher.queueEvent(EventType::roundEnd);
-			if (ImGui::Button("Start Game"))
-				m_eventDispatcher.queueEvent(EventType::roundStart);
-			if (ImGui::Button("Run TM Garbage Collector"))
-				Core::AssetManager::textureManager->runGarbargeCollector();
-			if (ImGui::Button("Toggle Fullscreen"))
-			{
-				m_fullscreen = m_fullscreen ? false : true;
-				SDL_DisplayID displayID = SDL_GetDisplayForWindow(m_window->getWHand());
-				SDL_DisplayMode closestMode;
-				if (!SDL_GetClosestFullscreenDisplayMode(displayID, 1280, 720, 0, true, &closestMode))
-				{
-					Console::ccout << "WINDOW FAILED TO FULLSCREEN" << std::endl;
-					auto [begin, end] = Console::cchat.getMessageIterators();
-					size_t elem = std::distance(begin, end) - 1;
-					Console::Message& mes = Console::cchat.getMessage(elem);
-					mes.color = ImVec4(0.0f, 255.0f, 0.0f, 255.0f);
-				}
-				SDL_SetWindowFullscreen(m_window->getWHand(), m_fullscreen);
-			}
-			if (ImGui::Button("Main Menu"))
-				m_layer = Layer::Start;
-		}
-		if (ImGui::CollapsingHeader("Dev Mode"))
-		{
-			ImGui::Text("Number of tiles left: %d", m_gameplayManager->getNumTilesLeft());
-			if (!m_devMode)
-				ImGui::OpenPopup("Dev Mode");
-		}
-		// This code must be called every frame, outside the button's if statement
-		if (ImGui::BeginPopupModal("Dev Mode", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			std::string input;
+		
 
-			if (ImGui::InputText("##Password", &input, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_Password))
-			{
-				if (input == "password")
-				{
-					m_devMode = true;
-					m_eventDispatcher.queueEvent(EventType::enterDevMode);
-					Console::ccout << "DEVMODE ACTIVE" << std::endl;
-					auto [begin, end] = Console::cchat.getMessageIterators();
-					size_t elem = std::distance(begin, end) - 1;
-					Console::Message& mes = Console::cchat.getMessage(elem);
-					mes.color = ImVec4(0.0f, 255.0f, 0.0f, 255.0f);
-					ImGui::CloseCurrentPopup();
-				}
-				else
-				{
-					Console::ccout << "INCORRECT DEVMODE PASSWORD" << std::endl;
-					auto [begin, end] = Console::cchat.getMessageIterators();
-					size_t elem = std::distance(begin, end) - 1;
-					Console::Message& mes = Console::cchat.getMessage(elem);
-					mes.color = ImVec4(255.0f, 0.0f, 0.0f, 255.0f);
-					ImGui::CloseCurrentPopup();
-				}
-			}
-			ImGui::EndPopup();
-		}
-		ImGui::End();
-
-		if(m_devMode)
-		{
-			if (ljl::cmdparser* cmd = Console::cchat.draw())
-			{
-				auto& cmdr = *cmd;
-				if (cmdr.is(ljl::cmdparser::type::query))
-					cmdr.respond();
-				else if (cmdr.is(ljl::cmdparser::type::command))
-				{
-					if (cmdr["mod"])
-						m_modifierManager->selectOption(cmdr.get_value<std::string>("mod", "-new"));
-					if (cmdr["listMods"])
-						m_modifierManager->listModifiersInChat();
-					if (cmdr["listActiveMods"])
-						m_modifierManager->listActiveModifiersInChat();
-				}
-			}
-		}
+		
 
 	}
 
@@ -235,92 +148,47 @@ namespace App
 		ImGui_ImplSDL3_InitForSDLRenderer(m_window->getWHand(), m_renderer->getRendHand());
 		ImGui_ImplSDLRenderer3_Init(m_renderer->getRendHand());
 
-		m_modifierManager = std::make_unique<Shop::ModifierManager>();
-		m_shop = std::make_unique<Shop::Shop>(m_modifierManager.get());
-		m_scrabbleBoard = std::make_unique<GameComponents::Board>(*m_renderer, *m_window);
-		m_gameplayManager = std::make_unique<GameComponents::GameplayManager>(m_eventDispatcher, *m_renderer, *m_modifierManager, *m_scrabbleBoard, m_scrabbleBoard->getNumTiles(), 21);
-		m_button = std::make_unique<UIComponents::Button>(*m_renderer, SDL_FRect{ .x = 1280 - 200, .y = 200, .w = 111.0f, .h = 55.0f }, "Dummy Button");
-
-		m_backgroundTex = Core::AssetManager::textureManager->newTexture("background", m_renderer->getRendHand(), "./assets/Textures/GameComponents/Background.png");
-		m_menuTex = Core::AssetManager::textureManager->newTexture("menu", m_renderer->getRendHand(), "./assets/Textures/GameComponents/Background2.jpg");
-
-		m_eventDispatcher.attach(*m_scrabbleBoard);
-		m_eventDispatcher.attach(*m_button);
-
-		m_layer = Layer::Start; // should be Layer::Start but i start it in game for easier debug
-
+		m_eventDispatcher = std::make_unique<EventSystem::EventDispatcher>();
+		m_layerStack = std::make_unique<LayerSystem::LayerStack>(*m_eventDispatcher);
+		m_layerStack->pushLayer<LayerSystem::StartLayer>(*m_eventDispatcher, *m_renderer);
 	}
 
 	void Application::run()
 	{
 		while (!m_window->shouldClose())
 		{
-			switch(m_layer)
+			 // update window size
+			Utils::updateWindowSize(m_window->getWHand());
+			// custom callback for ImGui
+			m_window->pollEvents(mf_ImGuiEventCallback);
+			// poll engine events
+			m_eventDispatcher->poll(*m_window);
+
+			// start pre-render
+			m_renderer->preRender();
+			this->ImGuiPreRender();
+
+			// render layers
+			m_layerStack->render(*m_renderer);
+
+			if(m_eventDispatcher->isEventActive(EventType::transferToMenuLayer))
 			{
-			case Layer::Start: // ----------------------------
+				m_layerStack->popLayer<LayerSystem::GameLayer>();
+				m_layerStack->pushLayer<LayerSystem::StartLayer>(*m_eventDispatcher, *m_renderer);
+				Core::AssetManager::textureManager->runGarbargeCollector();
+			}
+			if (m_eventDispatcher->isEventActive(EventType::transferToGameLayer))
+			{
+				m_layerStack->popLayer<LayerSystem::StartLayer>();
+				m_layerStack->pushLayer<LayerSystem::GameLayer>(*m_eventDispatcher, *m_window, *m_renderer);
+				Core::AssetManager::textureManager->runGarbargeCollector();
+			}
 
-				// update systems
-				Utils::updateWindowSize(m_window->getWHand());
-				m_window->pollEvents(mf_ImGuiEventCallback);
+			
 
-				m_renderer->preRender();
-				m_renderer->render(*m_menuTex, SDL_FRect(0.0f, 0.0f, (float)Utils::getWindowSize().first, (float)Utils::getWindowSize().second));
-				this->ImGuiPreRender();
-				this->ImGuiRenderStartUI();
-				this->ImGuiPostRender();
-				m_renderer->postRender();
-
-				break; // ~ Start
-
-			case Layer::Game: // ----------------------------
-
-				// update systems
-				Utils::updateWindowSize(m_window->getWHand());
-				if (m_button->pressed())
-				{
-					/*m_eventDispatcher.queueEvent(EventType::roundStart);
-					m_eventDispatcher.queueEvent(EventType::wordConfirmed);*/
-					Console::ccout << "BUTTON PRESSED" << std::endl;
-				}
-				// custom callback for ImGui
-				m_window->pollEvents(mf_ImGuiEventCallback);
-				m_eventDispatcher.poll(*m_window);
-				// rendering
-				m_renderer->preRender();
-				// background texture
-				m_renderer->render(*m_backgroundTex, SDL_FRect(0.0f, 0.0f, (float)Utils::getWindowSize().first, (float)Utils::getWindowSize().second));
-				// game components
-				m_scrabbleBoard->render(*m_renderer);
-				m_gameplayManager->render(*m_renderer);
-				m_button->render(*m_renderer);
-
-				this->ImGuiPreRender();
-				this->ImGuiRenderGameUI();
-				m_shop->render();
-				this->ImGuiPostRender();
-				m_renderer->postRender();
-
-				if (!m_devMode && m_eventDispatcher.isEventActive(EventType::gameEnd))
-					m_layer = Layer::GameOver;
-
-				break; // ~ Game
-
-			case Layer::GameOver: // ----------------------------
-				Utils::updateWindowSize(m_window->getWHand());
-				m_window->pollEvents(mf_ImGuiEventCallback);
-
-				m_renderer->preRender();
-				m_renderer->render(*m_menuTex, SDL_FRect(0.0f, 0.0f, (float)Utils::getWindowSize().first, (float)Utils::getWindowSize().second));
-				this->ImGuiPreRender();
-				ImGui::Begin("Game Over");
-				ImGui::Text("Game Over!");
-				ImGui::End();
-				this->ImGuiPostRender();
-				m_renderer->postRender();
-
-				break; // ~ GameOver
-
-			} // ~ switch m_layer
+			// start post-render
+			this->ImGuiPostRender();
+			m_renderer->postRender();
 
 			SDL_Delay(10); 
 		}

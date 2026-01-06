@@ -5,7 +5,6 @@
     "stackable": false,
     "rarity": 1,
     "script":"<NO-SCRIPT>",
-    "scoreType": "onCharScoreAdd",
     "staticModifiers": {
         "globalPriceReduction": 0.8
     }

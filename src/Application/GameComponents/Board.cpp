@@ -119,18 +119,6 @@ namespace App
 			const size_t index = static_cast<size_t>(tileY) * m_numTiles + tileX;
 
 			// replace tile if tile already there
-			/*for (const Tile* t : m_tiles)
-			{
-				if (t->getIndex() == index)
-				{
-					auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
-					if (it != m_tiles.end())
-						m_tiles.erase(it);
-
-					tile->snapToTile(SIZE_MAX);
-					return;
-				}
-			}*/
 			for (Tile* t : m_tiles)
 			{
 				if (t->getIndex() == index)
@@ -146,16 +134,29 @@ namespace App
 						return;
 					}
 
-					t->snapToTile(SIZE_MAX);
+					if(t->isTileActive())
+					{
+						// success
+						t->snapToTile(SIZE_MAX);
 
-					auto it = std::find(m_tiles.begin(), m_tiles.end(), t);
-					if (it != m_tiles.end())
-						m_tiles.erase(it);
+						auto it = std::find(m_tiles.begin(), m_tiles.end(), t);
+						if (it != m_tiles.end())
+							m_tiles.erase(it);
 
-					tile->snapToTile(index);
-					auto it2 = std::find(m_tiles.begin(), m_tiles.end(), tile);
-					if (it2 == m_tiles.end())
-						m_tiles.push_back(tile);
+						tile->snapToTile(index);
+						auto it2 = std::find(m_tiles.begin(), m_tiles.end(), tile);
+						if (it2 == m_tiles.end())
+							m_tiles.push_back(tile);
+					}
+					else
+					{
+						// fail 
+						tile->snapToTile(SIZE_MAX);
+
+						auto it = std::find(m_tiles.begin(), m_tiles.end(), tile);
+						if (it != m_tiles.end())
+							m_tiles.erase(it);
+					}
 
 					return;
 				}
@@ -342,6 +343,11 @@ namespace App
 		void Board::clearMWords()
 		{
 			m_words.clear();
+		}
+
+		void Board::clearMTilesReferences()
+		{
+			m_tiles.clear();
 		}
 
 		size_t Board::getSnapTileIndex(glm::vec2 pos)

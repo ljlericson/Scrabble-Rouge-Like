@@ -9,11 +9,15 @@ return function(context)
         end
 
         local points = 50 * numWords
-
+        if points ~= 0 then
+            print(points)
+            print(context.words)
+        end
         return {
             addScore = points,
             mulMultScore = 1,
             addMultScore = 0
+
         }
     else
         return {

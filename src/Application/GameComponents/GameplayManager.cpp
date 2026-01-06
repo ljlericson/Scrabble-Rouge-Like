@@ -23,7 +23,14 @@ namespace App
 			// open file for tile letter selection
 			std::ifstream file("./config/tiles/tileLetters.json");
 			file >> m_vowelsAndCons;
-			eventDispatcher.attach(*this);
+		}
+
+		GameplayManager::~GameplayManager()
+		{
+			for (auto& tile : m_tiles)
+			{
+				mr_eventDispatcher.dettach(*tile);
+			}
 		}
 
 		void GameplayManager::render(const Core::SDLBackend::Renderer& renderer)
@@ -214,9 +221,9 @@ namespace App
 					const auto& wordsOnBoard = mr_board.getWordsOnBoard();
 					m_score += baseScore;
 					m_score += mr_modifierManager.getBonusPoints(wordsOnBoard, baseScore, "wordScored", m_numTilesLeft, static_cast<int>(wordsOnBoard.size()) - m_numPreviousWords);
-
-					mr_board.clearMWords();
 				}
+				mr_board.clearMWords();
+				m_badWordIndexes.clear();
 
 				m_scoreText.setText("Points: ");
 				m_scoreText.setText(m_scoreText.getText().append(std::to_string(m_score)));

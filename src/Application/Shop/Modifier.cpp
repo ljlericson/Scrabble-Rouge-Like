@@ -18,7 +18,7 @@ namespace App
 
 		PointsReturn Modifier::getBonusRoundPoints(const Context& context)
 		{
-			PointsReturn points = { .addScore = 0, .addMult = 0, .mulMult = 1 };
+			PointsReturn points = { .addScore = 0, .addMult = 0, .mulMult = 0 };
 
 			if (m_script)
 			{

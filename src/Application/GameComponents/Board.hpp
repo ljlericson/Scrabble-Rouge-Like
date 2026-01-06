@@ -52,6 +52,8 @@ namespace App
 
 			void clearMWords();
 
+			void clearMTilesReferences();
+
 			size_t getSnapTileIndex(glm::vec2 pos);
 
 			int getNumTiles() const;

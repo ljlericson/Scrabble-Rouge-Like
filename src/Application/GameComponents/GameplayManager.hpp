@@ -29,6 +29,7 @@ namespace App
 		{
 		public:
 			GameplayManager(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, Board& board, int numTiles, int numTilesPerGame);
+			~GameplayManager();
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 
