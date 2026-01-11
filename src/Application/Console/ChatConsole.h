@@ -35,6 +35,8 @@ namespace App
 
 			void print(const std::string& msg, ImVec4 color = ImVec4(1, 1, 1, 1));
 
+			void loadJson(const std::string& path);
+
 			ljl::cmdparser* draw();
 
 			void clear();

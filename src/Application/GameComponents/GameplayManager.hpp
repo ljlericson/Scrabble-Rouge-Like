@@ -28,10 +28,19 @@ namespace App
 		class GameplayManager : public BasicGameComponent
 		{
 		public:
+			// updating game system on render means
+			// only one for loop needed going over
+			// tiles
+			enum class UpdateGameSystemOnRender
+			{
+				true_,
+				false_
+			};
+		public:
 			GameplayManager(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer, Shop::ModifierManager& modifierManager, Board& board, int numTiles, int numTilesPerGame);
 			~GameplayManager();
 
-			void render(const Core::SDLBackend::Renderer& renderer);
+			void render(const Core::SDLBackend::Renderer& renderer, UpdateGameSystemOnRender renderType);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
@@ -66,7 +75,7 @@ namespace App
 			
 			bool m_gameRunning = false;
 
-			nlohmann::json m_vowelsAndCons;
+			nlohmann::json mj_vowelsAndCons;
 
 			int m_score = 0;
 			uint8_t m_numRounds = 0;

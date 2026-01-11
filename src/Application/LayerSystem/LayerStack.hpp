@@ -1,7 +1,7 @@
 #pragma once
-#include <unordered_map>
+#include <vector>
 #include <type_traits>
-#include <typeindex>
+#include <typeinfo>
 #include <memory>
 #include <iostream>
 
@@ -20,14 +20,17 @@ namespace App
 			template<typename T, typename... Args> requires std::is_base_of_v<BasicLayer, T>
 			void pushLayer(Args&&... args)
 			{
-				std::type_index ti = typeid(T);
-				if (!m_layers.contains(ti))
+				auto it = std::find_if(m_layers.begin(), m_layers.end(), [](const std::unique_ptr<BasicLayer>& layer)
 				{
-					m_layers.insert(std::pair{
-						ti,
-						std::make_unique<T>(std::forward<Args>(args)...)
-						});
-					m_layers.at(typeid(T))->attach(mr_eventDispatcher);
+					return typeid(*layer) == typeid(T);
+				});
+
+				if (it == m_layers.end())
+				{
+					if(m_layers.size() > 0)
+						m_layers.front()->toggleInactive(false);
+
+					m_layers.push_back(std::make_unique<T>(std::forward<Args>(args)...));
 				}
 				else
 				{
@@ -38,10 +41,16 @@ namespace App
 			template<typename T> requires std::is_base_of_v<BasicLayer, T>
 			void popLayer();
 
+			template<typename T> requires std::is_base_of_v<BasicLayer, T>
+			bool layerActive();
+
 			void render(const Core::SDLBackend::Renderer& renderer);
 
+			void clear();
+
 		private:
-			std::unordered_map<std::type_index, std::unique_ptr<BasicLayer>> m_layers;
+			// fixed order required
+			std::vector<std::unique_ptr<BasicLayer>> m_layers;
 			EventSystem::EventDispatcher& mr_eventDispatcher;
 		};
 	}

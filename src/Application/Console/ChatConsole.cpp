@@ -8,14 +8,18 @@ namespace App
         ChatConsole::ChatConsole()
         {
             m_input.reserve(256);
-            std::ifstream file("./config/console/args.json");
-            file >> m_args;
         }
 
         void ChatConsole::print(const std::string& msg, ImVec4 color)
         {
             m_messages.push_back({ msg, color, (float)ImGui::GetTime() });
             m_scrollToBottom = true;
+        }
+
+        void ChatConsole::loadJson(const std::string& path)
+        {
+            std::ifstream file(path);
+            file >> m_args;
         }
 
         ljl::cmdparser* ChatConsole::draw()

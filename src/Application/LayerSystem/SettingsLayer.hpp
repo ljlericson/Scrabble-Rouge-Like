@@ -1,5 +1,5 @@
 #pragma once
-#include <string_view>
+#include <memory>
 
 #include "BasicLayer.hpp"
 
@@ -18,27 +18,21 @@ namespace App
 {
 	namespace LayerSystem
 	{
-		class GameLayer : public BasicLayer
+		class SettingsLayer : public BasicLayer
 		{
 		public:
-			GameLayer(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Window& window, const Core::SDLBackend::Renderer& renderer, std::string_view savePath);
+			SettingsLayer(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer);
 
 			void render(const Core::SDLBackend::Renderer& renderer) override;
 
-			~GameLayer() override;
-
+			~SettingsLayer() override;
 		private:
-			std::unique_ptr<Shop::Shop> m_shop;
-			std::unique_ptr<Shop::ModifierManager> m_modifierManager;
-			std::unique_ptr<GameComponents::Board> m_scrabbleBoard;
-			std::unique_ptr<GameComponents::GameplayManager> m_gameplayManager;
-			std::unique_ptr<UIComponents::Button> m_button;
+			bool m_fadedIn = false;
 
 			std::shared_ptr<Core::SDLBackend::Texture> m_backgroundTex;
 
 			EventSystem::EventDispatcher& mr_eventDispatcher;
-
-			bool m_devMode = false;
 		};
+		
 	}
 }

@@ -72,7 +72,7 @@ namespace App
 			SDL_FRect m_texRect;
 			SDL_FRect m_texRectShaking;
 
-			Hunspell m_spellChecker;
+			std::unique_ptr<Hunspell> m_spellChecker;
 			// mj for memeber json
 			nlohmann::json mj_letterScores;
 

@@ -3,6 +3,7 @@
 #include "../GameComponents/Tile.hpp"
 #include "../GameComponents/GameplayManager.hpp"
 #include "../UIComponents/Button.hpp"
+#include "../StateManager.hpp"
 
 namespace App
 {
@@ -25,7 +26,13 @@ namespace App
 		template<class T> requires std::is_base_of_v<BasicEventObserver, T>
 		void EventDispatcher::attach(T& observer)
 		{
-			m_observers.push_back(&observer);
+			T* observerPtr = &observer;
+			auto it = std::find(m_observers.begin(), m_observers.end(), observerPtr);
+
+			if(it == m_observers.end())
+				m_observers.push_back(observerPtr);
+			else
+				std::cout << "ERROR EVENTDISPATCHER: OBSERVER ALREADY IN M_OBSERVERS\n";
 		}
 
 		template<class T> requires std::is_base_of_v<BasicEventObserver, T>
@@ -93,4 +100,7 @@ namespace App
 
 	template void EventSystem::EventDispatcher::attach<App::UIComponents::Button>(App::UIComponents::Button&);
 	template void EventSystem::EventDispatcher::dettach<App::UIComponents::Button>(App::UIComponents::Button&);
+
+	template void EventSystem::EventDispatcher::attach<App::StateManager>(App::StateManager&);
+	template void EventSystem::EventDispatcher::dettach<App::StateManager>(App::StateManager&);
 }

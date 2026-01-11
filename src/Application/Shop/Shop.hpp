@@ -16,11 +16,17 @@ namespace App
 		class Shop : public EventSystem::BasicEventObserver
 		{
 		public:
+			enum class UIDisabled
+			{
+				true_,
+				false_
+			};
+		public:
 			Shop(ModifierManager* manager);
 
 			void populateShop();
 
-			void render();
+			void render(UIDisabled active);
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 

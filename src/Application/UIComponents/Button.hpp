@@ -27,6 +27,8 @@ namespace App
 			void setButtonText(const std::string& newText);
 
 			bool pressed() const;
+
+			void setActive(bool toggle) { m_active = toggle; };
 			
 		private:
 			Core::SDLBackend::SpriteSheet m_tex;
@@ -36,6 +38,7 @@ namespace App
 
 			bool m_pressed = false;
 			mutable bool m_handled = false;
+			bool m_active = true;
 		};
 	}
 }

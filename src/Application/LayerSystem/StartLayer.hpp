@@ -18,10 +18,6 @@ namespace App
 		public:
 			StartLayer(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Renderer& renderer);
 
-			void attach(EventSystem::EventDispatcher& eventDispatcher) override;
-
-			void dettach(EventSystem::EventDispatcher& eventDispatcher) override;
-
 			void render(const Core::SDLBackend::Renderer& renderer) override;
 
 			~StartLayer() override;

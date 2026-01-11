@@ -23,6 +23,32 @@ namespace Core
 				std::cerr << "ERROR: Texture failed to render " << SDL_GetError() << '\n';
 		}
 
+		Renderer::AnimationState Renderer::fadeIn(const Texture& tex, SDL_FRect texRect, std::chrono::milliseconds fadeInTime, SDL_FRect* srcRect) const
+		{
+			using clock = std::chrono::steady_clock;
+
+			// Register first render time
+			if (!m_texFadeStarts.contains(&tex))
+				m_texFadeStarts[&tex] = clock::now();
+
+			auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(clock::now() - m_texFadeStarts[&tex]);
+
+			float t = std::clamp(elapsed.count() / static_cast<float>(fadeInTime.count()), 0.0f, 1.0f);
+
+			Uint8 alpha = static_cast<Uint8>(255.0f * t);
+
+			SDL_SetTextureBlendMode(tex.texHand, SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(tex.texHand, alpha);
+
+			if (!SDL_RenderTexture(m_rendHand, tex.texHand, srcRect, &texRect))
+				std::cerr << "ERROR: Texture failed to render " << SDL_GetError() << '\n';
+
+			if (t >= 1.0f)
+				m_texFadeStarts.erase(&tex);
+
+			return (t >= 1.0f) ? AnimationState::finished : AnimationState::inProgress;
+		}
+
 		void Renderer::render(SDL_FRect rect, SDL_Color col, DrawType type) const
 		{
 			SDL_SetRenderDrawBlendMode(m_rendHand, SDL_BLENDMODE_BLEND);

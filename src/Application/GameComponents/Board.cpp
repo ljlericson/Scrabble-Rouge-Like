@@ -5,7 +5,7 @@ namespace App
 	namespace GameComponents
 	{
 		Board::Board(const Core::SDLBackend::Renderer& renderer, const Core::SDLBackend::Window& window)
-			: m_spellChecker("./assets/Dictionaries/en_AU.aff", "./assets/Dictionaries/en_AU.dic")
+			: m_spellChecker(std::make_unique<Hunspell>("./assets/Dictionaries/en_AU.aff", "./assets/Dictionaries/en_AU.dic"))
 		{
 			m_tex = Core::AssetManager::textureManager->newTexture("Board", renderer.getRendHand(), "./assets/Textures/GameComponents/Board.png");
 			auto [w, h] = Utils::getWindowSize();
@@ -59,8 +59,20 @@ namespace App
 				m_active = false;
 				m_tiles.clear();
 				break;
+			case EventType::switchTo_USEng_Lang:
+				std::cout << "SWITCHED LANG TO US\n";
+
+				break;
+			case EventType::switchTo_AUEng_Lang:
+				std::cout << "SWITCHED LANG TO AU\n";
+				m_spellChecker = std::make_unique<Hunspell>("./assets/Dictionaries/en_AU.aff", "./assets/Dictionaries/en_AU.dic");
+				break;
+			case EventType::switchTo_NZEng_Lang:
+				std::cout << "SWITCHED LANG TO NZ\n";
+				break;
 			case EventType::enterDevMode:
 				m_devMode = true;
+				break;
 			}
 
 		}
@@ -237,7 +249,7 @@ namespace App
 					if (word.length() < 2)
 						return;
 
-					if (!m_spellChecker.spell(word))
+					if (!m_spellChecker->spell(word))
 					{
 						badIndexes.insert(indexes.begin(), indexes.end());
 						return;

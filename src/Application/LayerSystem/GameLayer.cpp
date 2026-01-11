@@ -5,26 +5,7 @@ namespace App
 {
 	namespace LayerSystem
 	{
-		/*class GameLayer : public BasicLayer
-		{
-		public:
-			GameLayer();
-
-			void attach(const EventSystem::EventDispatcher& eventDispatcher) override;
-
-			virtual void render(const Core::SDLBackend::Renderer& renderer) override;
-
-		private:
-			std::unique_ptr<Shop::Shop> m_shop;
-			std::unique_ptr<Shop::ModifierManager> m_modifierManager;
-			std::unique_ptr<GameComponents::Board> m_scrabbleBoard;
-			std::unique_ptr<GameComponents::GameplayManager> m_gameplayManager;
-			std::unique_ptr<UIComponents::Button> m_button;
-
-			std::shared_ptr<Core::SDLBackend::Texture> m_backgroundTex;
-		};*/
-
-		GameLayer::GameLayer(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Window& window, const Core::SDLBackend::Renderer& renderer)
+		GameLayer::GameLayer(EventSystem::EventDispatcher& eventDispatcher, const Core::SDLBackend::Window& window, const Core::SDLBackend::Renderer& renderer, std::string_view savePath)
 			: mr_eventDispatcher(eventDispatcher)
 		{
 			m_modifierManager = std::make_unique<Shop::ModifierManager>();
@@ -34,24 +15,15 @@ namespace App
 			m_button = std::make_unique<UIComponents::Button>(renderer, SDL_FRect{ .x = 1280 - 200, .y = 200, .w = 111.0f, .h = 55.0f }, "Dummy Button");
 
 			m_backgroundTex = Core::AssetManager::textureManager->newTexture("background", renderer.getRendHand(), "./assets/Textures/GameComponents/Background.png");
-		}
 
-		void GameLayer::attach(EventSystem::EventDispatcher& eventDispatcher)
-		{
 			eventDispatcher.attach(*m_gameplayManager);
 			eventDispatcher.attach(*m_scrabbleBoard);
 			eventDispatcher.attach(*m_button);
 		}
 
-		void GameLayer::dettach(EventSystem::EventDispatcher& eventDispatcher)
-		{
-			eventDispatcher.dettach(*m_gameplayManager);
-			eventDispatcher.dettach(*m_scrabbleBoard);
-			eventDispatcher.dettach(*m_button);
-		}
-
 		void GameLayer::render(const Core::SDLBackend::Renderer& renderer)
 		{
+			m_button->setActive(m_active);
 			if (m_button->pressed())
 			{
 				/*m_eventDispatcher.queueEvent(EventType::roundStart);
@@ -63,19 +35,16 @@ namespace App
 			renderer.render(*m_backgroundTex, SDL_FRect(0.0f, 0.0f, (float)Utils::getWindowSize().first, (float)Utils::getWindowSize().second));
 			// game components
 			m_scrabbleBoard->render(renderer);
-			m_gameplayManager->render(renderer);
+			m_gameplayManager->render(renderer, 
+				m_active ? GameComponents::GameplayManager::UpdateGameSystemOnRender::true_ : GameComponents::GameplayManager::UpdateGameSystemOnRender::false_);
 			m_button->render(renderer);
-			m_shop->render();
+			m_shop->render(m_active ? Shop::Shop::UIDisabled::false_ : Shop::Shop::UIDisabled::true_);
 
+			if(m_active) ImGui::Begin("CONTROLS");
+			else         ImGui::Begin("CONTROLS", nullptr, ImGuiWindowFlags_NoInputs);
+				
+			ImGui::BeginDisabled(!m_active);
 
-			// ---------------------------------------------------------
-			// ---------------------------------------------------------
-			// ---------------------------------------------------------
-			// ---------------------------------------------------------
-
-
-			// IMGUI RENDERING
-			ImGui::Begin("CONTROLS");
 			if (ImGui::CollapsingHeader("GAME EVENTS"))
 			{
 				if (ImGui::Button("Populate Shop"))
@@ -125,11 +94,21 @@ namespace App
 				}
 				ImGui::EndPopup();
 			}
+			ImGui::EndDisabled();
 			ImGui::End();
 
-			ImGui::Begin("Menu");
+
+			if (m_active)
+				ImGui::Begin("Menu");
+			else
+				ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoInputs);
+
+			ImGui::BeginDisabled(!m_active);
+			
 			if (ImGui::Button("Go to menu"))
-				mr_eventDispatcher.queueEvent(EventType::transferToMenuLayer);
+				mr_eventDispatcher.queueEvent(EventType::transferToStartState);
+
+			ImGui::EndDisabled();
 			ImGui::End();
 
 			if (m_devMode)

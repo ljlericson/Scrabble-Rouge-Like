@@ -16,9 +16,14 @@ namespace App
 			m_modifierInfo = mrp_manager->getShopOptions(3);
 		}
 
-		void Shop::render()
+		void Shop::render(UIDisabled active)
 		{
-			ImGui::Begin("SHOP");
+			if(active == UIDisabled::false_)
+				ImGui::Begin("SHOP");
+			else
+				ImGui::Begin("SHOP", nullptr, ImGuiWindowFlags_NoInputs);
+			ImGui::BeginDisabled(active == UIDisabled::true_);
+
 			for (size_t i = 0; i < m_modifierInfo.size(); i++)
 			{
 				ImGui::PushID(static_cast<int>(i));
@@ -52,6 +57,8 @@ namespace App
 			}
 			if(ImGui::Button("Done Shopping"))
 				m_modifierInfo.clear();
+
+			ImGui::EndDisabled();
 			ImGui::End();
 		}
 

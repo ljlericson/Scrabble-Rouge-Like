@@ -12,11 +12,12 @@ namespace App
 		public:
 			virtual ~BasicLayer() = default;
 
-			virtual void attach(EventSystem::EventDispatcher& eventDispatcher) = 0;
-
-			virtual void dettach(EventSystem::EventDispatcher& eventDispatcher) = 0;
-
 			virtual void render(const Core::SDLBackend::Renderer& renderer) = 0;
+
+			void toggleInactive(bool toggle) { m_active = toggle; };
+
+		protected:
+			bool m_active = true;
 		};
 	}
 }

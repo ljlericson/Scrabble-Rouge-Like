@@ -22,7 +22,7 @@ namespace App
 		{
 			// open file for tile letter selection
 			std::ifstream file("./config/tiles/tileLetters.json");
-			file >> m_vowelsAndCons;
+			file >> mj_vowelsAndCons;
 		}
 
 		GameplayManager::~GameplayManager()
@@ -33,7 +33,7 @@ namespace App
 			}
 		}
 
-		void GameplayManager::render(const Core::SDLBackend::Renderer& renderer)
+		void GameplayManager::render(const Core::SDLBackend::Renderer& renderer, UpdateGameSystemOnRender renderType)
 		{
 			// only render tile recycler when the game is running
 			if(m_gameRunning)
@@ -43,86 +43,89 @@ namespace App
 			for (size_t i = 0; i < m_activeTiles.size(); ++i)
 			{
 				std::unique_ptr<Tile>& tile = m_activeTiles[i].get();
-				auto result = tile->handlePress();
 
-				// press tile logic
-				if (result == GameComponents::Tile::PressState::justReleased)
+				// only update tiles if the game system is to be updated
+				if(renderType == UpdateGameSystemOnRender::true_)
 				{
-					// if the tile is released in the recycler then
-					// shuffle the character and send it back to the
-					// start pos (to give illusion that it is a new
-					// tile)
-					if (m_numTilesLeft > 0 && m_tileRecycler.inRecycler(*tile))
+					auto result = tile->handlePress();
+					// press tile logic
+					if (result == GameComponents::Tile::PressState::justReleased)
 					{
-						tile->shuffleChar(renderer);
-						auto [w, h] = Utils::getWindowSize();
-						tile->pos.x = w + 50.0f;
-						tile->pos.y = h + 50.0f;
-						tile->addRedTint = false;
-						// decrement tiles left and increment next
-						// tile index 
-						--m_numTilesLeft;
-						m_nextTileIndex++;
-					}
-
-					mr_board.addTileToBoard(tile.get());
-					m_badWordIndexes = mr_board.validateWords();
-
-					const auto& wordsOnBoard = mr_board.getWordsOnBoard();
-
-					m_hideRecyclerAnimation = true;
-					m_numPreviousWords = static_cast<int>(wordsOnBoard.size());
-				}
-				else if (result == GameComponents::Tile::PressState::pressed)
-				{
-					if(tile.get() != m_activeTiles.back().get().get())
-					{
-						auto it = std::find_if(m_activeTiles.begin(), m_activeTiles.end(), [&](const auto& t)
+						// if the tile is released in the recycler then
+						// shuffle the character and send it back to the
+						// start pos (to give illusion that it is a new
+						// tile)
+						if (m_numTilesLeft > 0 && m_tileRecycler.inRecycler(*tile))
 						{
-							return t.get().get() == m_activeTiles[i].get().get();
-						});
-
-						if (it != m_activeTiles.end())
-						{
-							std::rotate(it, it + 1, m_activeTiles.end());
-							i = 0; // sneaky lil trick to avoid flickering
+							tile->shuffleChar(renderer);
+							auto [w, h] = Utils::getWindowSize();
+							tile->pos.x = w + 50.0f;
+							tile->pos.y = h + 50.0f;
+							tile->addRedTint = false;
+							// decrement tiles left and increment next
+							// tile index 
+							--m_numTilesLeft;
+							m_nextTileIndex++;
 						}
+
+						mr_board.addTileToBoard(tile.get());
+						m_badWordIndexes = mr_board.validateWords();
+
+						const auto& wordsOnBoard = mr_board.getWordsOnBoard();
+
+						m_hideRecyclerAnimation = true;
+						m_numPreviousWords = static_cast<int>(wordsOnBoard.size());
 					}
+					else if (result == GameComponents::Tile::PressState::pressed)
+					{
+						if (tile.get() != m_activeTiles.back().get().get())
+						{
+							auto it = std::find_if(m_activeTiles.begin(), m_activeTiles.end(), [&](const auto& t)
+								{
+									return t.get().get() == m_activeTiles[i].get().get();
+								});
 
-					m_hideRecyclerAnimation = false;
+							if (it != m_activeTiles.end())
+							{
+								std::rotate(it, it + 1, m_activeTiles.end());
+								i = 0; // sneaky lil trick to avoid flickering
+							}
+						}
 
-					if (m_tileRecycler.inRecycler(*tile))
-						tile->addRedTint = true;
-					else
-						tile->addRedTint = false;
+						m_hideRecyclerAnimation = false;
 
-					// render the highlighter that shows where the tile
-					// is going to go on the board
-					auto [w, h] = Utils::getWindowSize();
-					const float numTiles = static_cast<float>(mr_board.getNumTiles());
-					const float tileSize = h / static_cast<float>(numTiles);
+						if (m_tileRecycler.inRecycler(*tile))
+							tile->addRedTint = true;
+						else
+							tile->addRedTint = false;
 
-					// continuity correction for snapping in the middle of
-					// the tile as opposed to the left top corner
-					size_t tileIndex = mr_board.getSnapTileIndex({
-						tile->pos.x + ((h / numTiles / 2.0f)),
-						tile->pos.y + ((h / numTiles / 2.0f))
-						});
+						// render the highlighter that shows where the tile
+						// is going to go on the board
+						auto [w, h] = Utils::getWindowSize();
+						const float numTiles = static_cast<float>(mr_board.getNumTiles());
+						const float tileSize = h / static_cast<float>(numTiles);
 
-					// SIZE_MAX indicates the tile is not on the board
-					if (tileIndex != SIZE_MAX)
-						m_highlighter.render(renderer, tileIndex);
+						// continuity correction for snapping in the middle of
+						// the tile as opposed to the left top corner
+						size_t tileIndex = mr_board.getSnapTileIndex({
+							tile->pos.x + ((h / numTiles / 2.0f)),
+							tile->pos.y + ((h / numTiles / 2.0f))
+							});
+
+						// SIZE_MAX indicates the tile is not on the board
+						if (tileIndex != SIZE_MAX)
+							m_highlighter.render(renderer, tileIndex);
+					}
+					else if (m_hideRecyclerAnimation)
+					{
+						m_hideRecyclerAnimation = m_tileRecycler.hideAnimation();
+					}
 				}
-				else if (m_hideRecyclerAnimation)
-				{
-					m_hideRecyclerAnimation = m_tileRecycler.hideAnimation();
-				}
-
 
 				tile->render(renderer);
 			} // ~ tile render loop
 
-			// inactive tile renderering
+			// inactive tile rendering
 			for (auto& tileReference : m_inactiveTiles) tileReference.get()->render(renderer);
 			// red tint rendering for misspelled words on the board
 			for (size_t badTileIndex : m_badWordIndexes) m_highlighter.render(renderer, badTileIndex);
@@ -160,11 +163,11 @@ namespace App
 
 					if (chance == 0)
 					{
-						c = m_vowelsAndCons["vowels"].at(Utils::getRandomInt(0, (int32_t)m_vowelsAndCons["vowels"].size() - 1)).get<std::string>()[0];
+						c = mj_vowelsAndCons["vowels"].at(Utils::getRandomInt(0, (int32_t)mj_vowelsAndCons["vowels"].size() - 1)).get<std::string>()[0];
 					}
 					else
 					{
-						c = m_vowelsAndCons["consonants"].at(Utils::getRandomInt(0, (int32_t)m_vowelsAndCons["consonants"].size() - 1)).get<std::string>()[0];
+						c = mj_vowelsAndCons["consonants"].at(Utils::getRandomInt(0, (int32_t)mj_vowelsAndCons["consonants"].size() - 1)).get<std::string>()[0];
 					}
 					
 

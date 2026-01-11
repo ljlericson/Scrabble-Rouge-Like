@@ -58,6 +58,12 @@ namespace App
 
 		void Button::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 		{
+			if(!m_active) 
+			{
+				m_pressed = false;
+				return;
+			}
+
 			if (keyboardState[SDL_SCANCODE_N])
 			{
 				SDL_Color col = m_text.getTextColor();
