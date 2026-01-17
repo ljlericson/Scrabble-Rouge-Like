@@ -9,6 +9,7 @@ enum class EventType
 	roundStart,
 	roundEnd,
 	wordConfirmed,
+	shopPhaseEnd,
 	gameEnd,
 
 	// state changes

@@ -38,7 +38,6 @@ namespace App
 			m_gameplayManager->render(renderer, 
 				m_active ? GameComponents::GameplayManager::UpdateGameSystemOnRender::true_ : GameComponents::GameplayManager::UpdateGameSystemOnRender::false_);
 			m_button->render(renderer);
-			m_shop->render(m_active ? Shop::Shop::UIDisabled::false_ : Shop::Shop::UIDisabled::true_);
 
 			if(m_active) ImGui::Begin("CONTROLS");
 			else         ImGui::Begin("CONTROLS", nullptr, ImGuiWindowFlags_NoInputs);
@@ -133,11 +132,18 @@ namespace App
 			// END IMGUI RENDERING
 		}
 
+		Shop::ModifierManager* GameLayer::getModifierManager()
+		{
+			return m_modifierManager.get();
+		}
+
 		GameLayer::~GameLayer()
 		{
 			mr_eventDispatcher.dettach(*m_gameplayManager);
 			mr_eventDispatcher.dettach(*m_scrabbleBoard);
 			mr_eventDispatcher.dettach(*m_button);
+
+			Console::cchat.clear();
 		}
 	}
 }

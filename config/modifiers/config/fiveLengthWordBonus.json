@@ -1,5 +1,5 @@
 {
-    "id":"fourLengthWordMultiplier",
+    "id":"fiveLengthWordBonus",
     "description":"Gives bonus points for every four letter word made",
     "cost": 100,
     "stackable": true,

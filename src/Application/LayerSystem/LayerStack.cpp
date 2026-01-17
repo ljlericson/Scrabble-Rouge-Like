@@ -2,6 +2,8 @@
 #include "GameLayer.hpp"
 #include "StartLayer.hpp"
 #include "SettingsLayer.hpp"
+#include "ShopLayer.hpp"
+
 
 namespace App
 {
@@ -37,6 +39,20 @@ namespace App
             return it != m_layers.end();
         }
 
+        template<typename T> requires std::is_base_of_v<BasicLayer, T>
+        std::expected<std::reference_wrapper<T>, std::string> LayerStack::getLayer()
+        {
+            auto it = std::find_if(m_layers.begin(), m_layers.end(), [](const std::unique_ptr<BasicLayer>& layer)
+            {
+                return typeid(*layer) == typeid(T);
+            });
+
+            if(it != m_layers.end())
+                return static_cast<T&>(*it->get());
+
+             return std::unexpected<std::string>("ERROR: No layer found");
+        }
+
         void LayerStack::render(const Core::SDLBackend::Renderer& renderer)
         {
             for(auto& layer : m_layers)
@@ -51,11 +67,16 @@ namespace App
         template void LayerStack::popLayer<GameLayer>();
         template void LayerStack::popLayer<StartLayer>();
         template void LayerStack::popLayer<SettingsLayer>();
+        template void LayerStack::popLayer<ShopLayer>();
 
         template bool LayerStack::layerActive<GameLayer>();
         template bool LayerStack::layerActive<StartLayer>();
         template bool LayerStack::layerActive<SettingsLayer>();
+        template bool LayerStack::layerActive<ShopLayer>();
 
-
+        template std::expected<std::reference_wrapper<GameLayer>, std::string> LayerStack::getLayer<GameLayer>();
+        template std::expected<std::reference_wrapper<StartLayer>, std::string> LayerStack::getLayer<StartLayer>();
+        template std::expected<std::reference_wrapper<SettingsLayer>, std::string> LayerStack::getLayer<SettingsLayer>();
+        template std::expected<std::reference_wrapper<ShopLayer>, std::string> LayerStack::getLayer<ShopLayer>();
     }
 }

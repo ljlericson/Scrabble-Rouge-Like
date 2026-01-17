@@ -1,5 +1,5 @@
 {
-    "id":"letterZMultiplier",
+    "id":"letterYMultiplier",
     "description":"Gives bonus points for every tile with Z on the board",
     "cost": 50,
     "stackable": true,

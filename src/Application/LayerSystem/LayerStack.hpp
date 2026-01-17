@@ -4,6 +4,9 @@
 #include <typeinfo>
 #include <memory>
 #include <iostream>
+#include <expected>
+#include <string>
+#include <functional>
 
 #include "../../Core/SDLBackend/Renderer.hpp"
 #include "BasicLayer.hpp"
@@ -43,6 +46,9 @@ namespace App
 
 			template<typename T> requires std::is_base_of_v<BasicLayer, T>
 			bool layerActive();
+
+			template<typename T> requires std::is_base_of_v<BasicLayer, T>
+			std::expected<std::reference_wrapper<T>, std::string> getLayer();
 
 			void render(const Core::SDLBackend::Renderer& renderer);
 

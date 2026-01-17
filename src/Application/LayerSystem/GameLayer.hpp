@@ -25,6 +25,8 @@ namespace App
 
 			void render(const Core::SDLBackend::Renderer& renderer) override;
 
+			Shop::ModifierManager* getModifierManager();
+
 			~GameLayer() override;
 
 		private:

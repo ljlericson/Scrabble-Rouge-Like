@@ -92,7 +92,7 @@ namespace App
 			const int m_numTilesTotal;
 
 			int m_numGames = 1;
-			size_t m_targetScore = 30;
+			size_t m_targetScore = 10;
 		};
 	}
 }

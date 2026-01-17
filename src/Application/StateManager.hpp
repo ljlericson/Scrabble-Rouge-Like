@@ -8,6 +8,8 @@
 #include "LayerSystem/GameLayer.hpp"
 #include "LayerSystem/StartLayer.hpp"
 #include "LayerSystem/SettingsLayer.hpp"
+#include "LayerSystem/ShopLayer.hpp"
+
 
 #include "../Core/SDLBackend/Renderer.hpp"
 #include "../Core/SDLBackend/Window.hpp"

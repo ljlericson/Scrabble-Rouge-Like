@@ -32,6 +32,7 @@ namespace App
 				{
 					mrp_manager->selectOption(modr.id);
 					m_modifierInfo.clear();
+					m_doneShopping = true;
 					ImGui::PopID();
 					break;
 				}
@@ -56,7 +57,10 @@ namespace App
 				ImGui::PopID();
 			}
 			if(ImGui::Button("Done Shopping"))
+			{
 				m_modifierInfo.clear();
+				m_doneShopping = true;
+			}
 
 			ImGui::EndDisabled();
 			ImGui::End();
@@ -81,6 +85,16 @@ namespace App
 			default:
 				break;
 			}
+		}
+
+		bool Shop::isEmpty() const
+		{
+			return !m_doneShopping ? m_modifierInfo.empty() : false;
+		}
+
+		bool Shop::doneShopping() const
+		{
+			return m_doneShopping;
 		}
 	}
 }

@@ -30,11 +30,16 @@ namespace App
 
 			void onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events) override;
 
+			bool isEmpty() const;
+
+			bool doneShopping() const;
+
 		private:
 			std::vector<std::reference_wrapper<const ModifierInfo>> m_modifierInfo;
 			ModifierManager* mrp_manager;
 
 			bool m_render = false;
+			bool m_doneShopping = false;
 		};
 	}
 }

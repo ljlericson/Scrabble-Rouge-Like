@@ -148,7 +148,7 @@ namespace App
 
 				// local scope for switch block
 				{
-					m_targetScore = m_numGames * 30;
+					m_targetScore += (m_numGames - 1) * 20;
 					std::string text = m_targetScoreText.getText();
 					text.append(std::to_string(m_targetScore));
 					m_targetScoreText.setText("Target Points: ");

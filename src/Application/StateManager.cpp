@@ -15,25 +15,45 @@ namespace App
 
 	void StateManager::onInput(const bool* keyboardState, EventType e, const std::vector<uint32_t>& events)
 	{
-		bool escPressed = keyboardState[SDL_SCANCODE_ESCAPE];
-		bool escJustPressed = escPressed && !m_prevEscPressed;
-		m_prevEscPressed = escPressed;
-		if (escJustPressed)
+		// settings logic
+		if(mr_layerStack.layerActive<LayerSystem::GameLayer>())
 		{
-			if (m_state == State::game)
+			bool escPressed = keyboardState[SDL_SCANCODE_ESCAPE];
+			bool escJustPressed = escPressed && !m_prevEscPressed;
+			m_prevEscPressed = escPressed;
+			if (escJustPressed)
 			{
-				mr_layerStack.pushLayer<LayerSystem::SettingsLayer>(mr_eventDispatcher, mr_renderer);
-				m_state = State::settingsMenu;
-			}
-			else if (m_state == State::settingsMenu)
-			{
-				mr_layerStack.popLayer<LayerSystem::SettingsLayer>();
-				m_state = State::game;
+				if (m_state == State::game)
+				{
+					mr_layerStack.pushLayer<LayerSystem::SettingsLayer>(mr_eventDispatcher, mr_renderer);
+					m_state = State::settingsMenu;
+				}
+				else if (m_state == State::settingsMenu)
+				{
+					mr_layerStack.popLayer<LayerSystem::SettingsLayer>();
+					m_state = State::game;
+				}
 			}
 		}
 
 		switch (e)
 		{
+		case EventType::roundEnd:
+			{
+				auto result = mr_layerStack.getLayer<LayerSystem::GameLayer>();
+				if(result)
+					mr_layerStack.pushLayer<LayerSystem::ShopLayer>(mr_eventDispatcher, result.value().get().getModifierManager());
+				else
+					std::cout << result.error();
+			}
+			break;
+
+		case EventType::shopPhaseEnd:
+			mr_layerStack.popLayer<LayerSystem::ShopLayer>();
+			mr_eventDispatcher.queueEvent(EventType::roundStart);
+			mr_eventDispatcher.queueEvent(EventType::wordConfirmed);
+			break;
+
 		case EventType::transferToGameState:
 			mr_layerStack.clear();
 			mr_layerStack.pushLayer<LayerSystem::GameLayer>(mr_eventDispatcher, mr_window, mr_renderer, "");
