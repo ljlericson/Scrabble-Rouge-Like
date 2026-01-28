@@ -19,5 +19,5 @@ This repo is a scrabble rouge-like game currently in developement.
 - **IMPORTANT!!** If on Mac, run `brew install pkg-config ninja autoconf automake libtool` or `sudo apt install build-essential pkg-config ninja-build autoconf automake libtool` if on Linux. This installs required libs.
 
 3. Run `./vcpkg install` (this may take a while)
-4. Run `cd ..` to go back to the root directory and then run `cmake . -B build`
+4. Run `cd ..` to go back to the root directory and then run the desired generate shell/batch script (note that on Linux/Mac you must tun like so: `sh <desired generation>.sh`)
 5. Run `cd build` and then `make` if on Mac/Linux or simply open the `.sln` file if on Windows (assuming your using VS 2022/2026)
